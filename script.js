@@ -581,21 +581,28 @@ const modalBody = document.getElementById('modal-body');
 const modalClose = document.getElementById('modal-close');
 const footLinks = document.querySelectorAll('.foot-link');
 
-const modalContents = {
-  privacy: "Privacy policy under development...", legal: "Legal notice under development...", terms: "Terms of use under development...", donate: "Thank you for supporting the project..."
-};
-
 if (modalOverlay) {
   footLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault(); const type = link.dataset.modal;
       modalTitle.textContent = getTranslation('foot.' + type) || "INFO";
-      modalBody.textContent = modalContents[type] || "...";
+      modalBody.innerHTML = getTranslation('modal.' + type) || "...";
       modalOverlay.classList.remove('hidden');
     });
   });
   modalClose.addEventListener('click', () => modalOverlay.classList.add('hidden'));
   modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.add('hidden'); });
+}
+
+const btnHelp = document.getElementById('btn-help');
+if (btnHelp) {
+  btnHelp.addEventListener('click', () => {
+    dropdownMenu.classList.add('hidden');
+    const w = 780, h = 620;
+    const left = Math.round((screen.width - w) / 2);
+    const top = Math.round((screen.height - h) / 2);
+    window.open('help.html', 'rack4master_help', `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════

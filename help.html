@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Interactiva — MASTER4RACK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --bg2: #121216;
+            --bg3: #1a1a20;
+            --amber: #ffb300;
+            --tx1: #ffffff;
+            --tx2: #a0a0b0;
+            --tx3: #606070;
+            --brd: #2a2a35;
+            --fnt-display: 'Orbitron', sans-serif;
+            --fnt-ui: 'Rajdhani', sans-serif;
+            --fnt-mono: 'Share Tech Mono', monospace;
+            --accent: #4488ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--tx1);
+            font-family: var(--fnt-ui);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(to bottom, var(--bg2), var(--bg));
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--brd);
+        }
+
+        .logo-g {
+            font-family: var(--fnt-display);
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--amber);
+            text-shadow: 0 0 20px rgba(255, 179, 0, 0.3);
+        }
+
+        .subtitle {
+            font-family: var(--fnt-display);
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            color: var(--tx3);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .help-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: var(--bg2);
+            border: 1px solid var(--brd);
+            color: var(--tx2);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: var(--fnt-display);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--amber);
+            color: var(--bg);
+            border-color: var(--amber);
+            box-shadow: 0 0 15px rgba(255, 179, 0, 0.4);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-family: var(--fnt-display);
+            color: var(--amber);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--amber);
+            padding-left: 15px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: var(--tx2);
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--brd);
+            padding: 20px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--tx3);
+        }
+
+        .card-title {
+            font-family: var(--fnt-display);
+            font-size: 0.9rem;
+            color: var(--tx1);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px currentColor;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--tx3);
+            font-family: var(--fnt-mono);
+        }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            background: var(--bg3);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .step-num {
+            font-family: var(--fnt-display);
+            font-size: 2rem;
+            color: var(--amber);
+            opacity: 0.5;
+            min-width: 40px;
+        }
+
+        .step-content h3 {
+            font-family: var(--fnt-display);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--tx3);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--brd);
+        }
+
+        kbd {
+            background: var(--bg3);
+            border: 1px solid var(--brd);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: var(--fnt-mono);
+            color: var(--amber);
+        }
+
+        .highlight {
+            color: var(--amber);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-g">MASTER4RACK</div>
+        <div class="subtitle">Guía de Usuario e Instrucciones</div>
+    </header>
+
+    <div class="container">
+        <nav class="help-nav">
+            <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
+            <button class="nav-btn" onclick="showSection('workflow')">FLUJO DE TRABAJO</button>
+            <button class="nav-btn" onclick="showSection('modules')">MÓDULOS</button>
+            <button class="nav-btn" onclick="showSection('presets')">PRESETS Y EXPORTACIÓN</button>
+            <button class="nav-btn" onclick="showSection('interface')">INTERFAZ</button>
+        </nav>
+
+        <!-- SECCIÓN: INTRODUCCIÓN -->
+        <section id="intro" class="section active">
+            <h2>Bienvenido a MASTER4RACK</h2>
+            <p>MASTER4RACK es una potente estación de trabajo de masterización basada en navegador. Permite procesar tus pistas de audio utilizando una cadena de efectos modular de alta calidad, todo en tiempo real y de forma privada.</p>
+            <div class="card">
+                <div class="card-title">¿Por qué MASTER4RACK?</div>
+                <p style="font-size: 0.95rem;">A diferencia de otros servicios, MASTER4RACK procesa el audio localmente en tu ordenador. Tus archivos nunca se suben a un servidor, garantizando total privacidad y una respuesta instantánea.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: FLUJO DE TRABAJO -->
+        <section id="workflow" class="section">
+            <h2>Cómo Masterizar tu Pista</h2>
+            
+            <div class="step">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h3>Cargar Audio</h3>
+                    <p>Arrastra tu archivo <kbd>WAV</kbd> o <kbd>MP3</kbd> al área central o haz clic en "DROP AUDIO FILE HERE". Verás la forma de onda original una vez cargado.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h3>Construir la Cadena</h3>
+                    <p>Explora los módulos en el panel derecho. Haz clic en el botón <span class="highlight">⊕</span> o arrastra el módulo directamente a la <span class="highlight">CADENA DE SEÑAL</span> en la parte inferior.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h3>Ajustar Parámetros</h3>
+                    <p>Haz clic en cualquier módulo de tu cadena para abrir sus controles en el <span class="highlight">ÁREA DE EDICIÓN</span> central. Ajusta los knobs para esculpir tu sonido.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">04</div>
+                <div class="step-content">
+                    <h3>Monitorizar y Exportar</h3>
+                    <p>Vigila los medidores de <span class="highlight">LUFS</span> y <span class="highlight">PEAK</span>. Cuando estés satisfecho, usa el botón <kbd>WAV</kbd> para descargar tu pista masterizada.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: MÓDULOS -->
+        <section id="modules" class="section">
+            <h2>Módulos Disponibles</h2>
+            <p>Cada módulo ha sido diseñado para cumplir una función específica en la cadena de masterización:</p>
+            
+            <div class="grid">
+                <!-- Dinámica -->
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #4488ff; color: #4488ff;"></div> PUERTA DE RUIDO</div>
+                    <p>Elimina el ruido de fondo en pasajes silenciosos.</p>
+                    <div class="card-desc">Thresh · Attack · Release</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #ffaa00; color: #ffaa00;"></div> COMPRESOR</div>
+                    <p>Controla el rango dinámico y aporta cohesión.</p>
+                    <div class="card-desc">Thresh · Ratio · Makeup</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #ff3366; color: #ff3366;"></div> LIMITADOR</div>
+                    <p>Asegura que el audio no sature y maximiza el volumen.</p>
+                    <div class="card-desc">Thresh · Release · Makeup</div>
+                </div>
+                <!-- Filtros -->
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #00d4b0; color: #00d4b0;"></div> FILTRO HP/LP</div>
+                    <p>Limpia frecuencias innecesarias en graves y agudos.</p>
+                    <div class="card-desc">High-Pass · Low-Pass</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #33dd77; color: #33dd77;"></div> ECUALIZADOR 4-B</div>
+                    <p>Balance tonal preciso con cuatro bandas paramétricas.</p>
+                    <div class="card-desc">4× Freq · Gain · Q</div>
+                </div>
+                <!-- Espacial y Saturación -->
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #aa66ff; color: #aa66ff;"></div> REVERB</div>
+                    <p>Añade profundidad y espacio tridimensional.</p>
+                    <div class="card-desc">Size · Decay · Mix</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #ff6633; color: #ff6633;"></div> SATURADOR</div>
+                    <p>Aporta calidez analógica y armónicos a la señal.</p>
+                    <div class="card-desc">Drive · Tone · Output</div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="led" style="background: #ffcc33; color: #ffcc33;"></div> DELAY</div>
+                    <p>Efectos de eco y repetición rítmica.</p>
+                    <div class="card-desc">Time · Feedback · Mix</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: PRESETS -->
+        <section id="presets" class="section">
+            <h2>Gestión de Proyectos</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Presets de Instrumentos</div>
+                    <p>Usa el selector superior para cargar configuraciones optimizadas para Pistas Completas, Baterías, Voces o Teclados.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Guardar/Cargar</div>
+                    <p>Puedes exportar tu configuración actual como un archivo <kbd>.json</kbd> para continuar tu trabajo más tarde.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Exportación WAV</div>
+                    <p>El botón WAV renderiza tu audio procesado a la máxima calidad disponible en tu navegador.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: INTERFAZ -->
+        <section id="interface" class="section">
+            <h2>Controles de la Interfaz</h2>
+            <div class="step">
+                <div class="step-content">
+                    <h3>Transporte</h3>
+                    <p>Controla la reproducción con <span class="highlight">Play, Stop y Loop</span>. El display muestra el tiempo preciso de la pista.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-content">
+                    <h3>Medidores de Salida</h3>
+                    <p>El panel inferior derecho muestra el nivel de salida en tiempo real. Usa el knob de <span class="highlight">GAIN</span> para el ajuste final antes de exportar.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-content">
+                    <h3>Bypass Global</h3>
+                    <p>El pequeño botón junto a "SALIDA" permite desactivar todos los efectos instantáneamente para comparar con el audio original.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 MASTER4RACK — Sistema de Ayuda Integrado</p>
+        <p>Diseñado para una experiencia de masterización profesional en la web.</p>
+    </footer>
+
+    <script>
+        function showSection(id) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Desactivar todos los botones
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // Mostrar la seleccionada
+            document.getElementById(id).classList.add('active');
+            
+            // Activar el botón correspondiente
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => 
+                b.getAttribute('onclick').includes(id)
+            );
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Scroll suave al inicio de la sección en móviles
+            if (window.innerWidth < 768) {
+                window.scrollTo({ top: 200, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
