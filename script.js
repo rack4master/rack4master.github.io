@@ -796,7 +796,33 @@ btnClear.addEventListener('click', () => {
   btnStop.disabled = true;
   resetMeters();
   applyOutGain(0);
+  if (instrumentSelect) instrumentSelect.value = '';   // <-- AÑADIR ESTA LÍNEA
 });
+
+// 👇 AÑADE ESTO
+// Reset Peak button with visual feedback
+if (btnPeakRst) {
+  btnPeakRst.addEventListener('click', () => {
+    resetMeters();
+
+    // Efecto visual: destello ámbar
+    btnPeakRst.style.transition = 'background 0.1s ease, border-color 0.1s ease, color 0.1s ease';
+    btnPeakRst.style.background = 'var(--amber)';
+    btnPeakRst.style.borderColor = 'var(--amber)';
+    btnPeakRst.style.color = '#000000';
+
+    setTimeout(() => {
+      btnPeakRst.style.background = '';
+      btnPeakRst.style.borderColor = '';
+      btnPeakRst.style.color = '';
+      // Opcional: eliminar la propiedad transition después del efecto para no interferir con otros hover
+      setTimeout(() => {
+        btnPeakRst.style.transition = '';
+      }, 150);
+    }, 150);
+  });
+}
+
 function clamp(v,mn,mx){return Math.min(mx,Math.max(mn,v));} function dbToGain(db){return Math.pow(10,db/20);} function fmtTime(s){ const m=Math.floor(s/60),sc=(s%60).toFixed(1).padStart(4,'0'); return `${String(m).padStart(2,'0')}:${sc}`; }
 
 if (btnGlobalBypass) {
