@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RACK4MASTER — Effects Chain for Audio Mastering</title>
+  <title>MASTER4RACK — Effects Chain for Audio Mastering</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
         <path d="M6 12h4"></path>
       </svg>
       <div style="display: flex; flex-direction: column; line-height: 1;">
-        <span class="logo-g">RACK4MASTER</span>
+        <span class="logo-g">MASTER4RACK</span>
         <span class="logo-c" data-i18n="ui.subtitle" style="font-size: 8px; letter-spacing: 2px; margin-top: 6px;">CADENA DE EFECTOS PARA MASTERING DE AUDIO</span>
       </div>
     </div>
@@ -111,7 +111,10 @@
     <div class="workspace">
       <!-- Waveform -->
             <section class="wf-section">
-              <div class="sec-label" data-i18n="ui.source_audio">AUDIO ORIGINAL</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <div class="sec-label" data-i18n="ui.source_audio" style="margin:0;">AUDIO ORIGINAL</div>
+                <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
+              </div>
               <div class="wf-wrap" id="wf-wrap">
                 <canvas id="wf-canvas"></canvas>
 
@@ -143,7 +146,6 @@
       <section class="chain-section">
         <div class="chain-topbar">
           <div class="sec-label" data-i18n="ui.signal_chain" style="margin:0;">CADENA DE SEÑAL</div>
-          <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
         </div>
         <div class="chain-scroll">
           <div class="chain-wrapper" style="position: relative;">

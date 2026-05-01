@@ -1,5 +1,6 @@
 /* ============================================================
    MASTER RACK — script.js (i18n Ready, Privacy First, Optimized)
+   Medidores con gradiente proporcional (canvas)
    ============================================================ */
 'use strict';
 
@@ -85,7 +86,6 @@ const btnGlobalBypass = document.getElementById('btn-global-bypass');
 let currentLang = 'en';
 
 function getTranslation(key) {
-  // Comprobamos directamente LANG sin el prefijo window.
   if (typeof LANG !== 'undefined' && LANG[currentLang] && LANG[currentLang][key]) {
     return LANG[currentLang][key];
   }
@@ -99,7 +99,6 @@ function setLanguage(langCode) {
   }
   currentLang = langCode;
 
-  // 1. Traducir textos fijos del HTML
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
     if (LANG[langCode][key]) {
@@ -107,19 +106,16 @@ function setLanguage(langCode) {
     }
   });
 
-  // 2. Si no hay audio, traducir el track name a su versión vacía
   if (!audioBuffer && trackNameEl) {
     trackNameEl.textContent = getTranslation('ui.no_audio');
   }
 
-  // 3. Traducir tarjetas creadas en el rack
   modules.forEach(m => {
     const translatedName = getTranslation('mod.' + m.type) || MODULE_DEFS[m.type].label;
     if(m.cardEl) m.cardEl.querySelector('.mod-title').textContent = translatedName;
     if(m.thumbEl) m.thumbEl.querySelector('.thumb-title').textContent = translatedName;
   });
 
-  // 4. Traducir la barra lateral
   if (sidebarList) {
     sidebarList.querySelectorAll('.slot').forEach(slot => {
       const type = slot.dataset.type;
@@ -171,7 +167,6 @@ function drawWaveformFull() {
   if (!audioBuffer) return;
   const wr = wfWrap.getBoundingClientRect(); const W = wr.width, H = wr.height; if (W <= 0 || H <= 0) return;
   const dpr = window.devicePixelRatio || 1; wfCanvas.width = Math.round(W * dpr); wfCanvas.height = Math.round(H * dpr);
-  // Se añade { willReadFrequently: true } para evitar el warning de rendimiento del canvas
   const ctx2 = wfCanvas.getContext('2d', { willReadFrequently: true });
   ctx2.save(); ctx2.scale(dpr, dpr); _paintWaveform(ctx2, audioBuffer, W, H); ctx2.restore();
   wfImageData = ctx2.getImageData(0, 0, wfCanvas.width, wfCanvas.height); drawOverlay(0);
@@ -193,7 +188,6 @@ function _paintWaveform(ctx2, buffer, W, H) {
 function drawOverlay(playRatio) {
   if (!audioBuffer || !wfImageData) return;
   const dpr = window.devicePixelRatio || 1; const W = wfCanvas.width / dpr; const H = wfCanvas.height / dpr;
-  // Se añade { willReadFrequently: true } para evitar el warning
   const ctx2 = wfCanvas.getContext('2d', { willReadFrequently: true });
   ctx2.putImageData(wfImageData, 0, 0); ctx2.save(); ctx2.scale(dpr, dpr);
   const lsX = loopStart * W; const leX = loopEnd * W;
@@ -268,7 +262,16 @@ function stopPlayback(resetOffset = true) {
   try { sourceNode && sourceNode.stop(); } catch(e){}
   sourceNode = null; isPlaying = false;
   if (resetOffset) { pauseOffset = 0; timeCurEl.textContent = '00:00.0'; if (audioBuffer) drawOverlay(0); }
-  setPlayUI(false); cancelAnimationFrame(rafId); cancelAnimationFrame(vuRafId); vuLEl.style.width = '0%'; vuREl.style.width = '0%';
+  setPlayUI(false); cancelAnimationFrame(rafId); cancelAnimationFrame(vuRafId);
+  // Limpiar canvas de medidores visualmente
+  const canvasL = vuLEl?.querySelector('canvas');
+  const canvasR = vuREl?.querySelector('canvas');
+  if (canvasL && canvasR) {
+    const ctxL = canvasL.getContext('2d');
+    const ctxR = canvasR.getContext('2d');
+    ctxL.clearRect(0, 0, canvasL.width, canvasL.height);
+    ctxR.clearRect(0, 0, canvasR.width, canvasR.height);
+  }
 }
 function setPlayUI(playing) { icoPlay.style.display = playing ? 'none' : ''; icoPause.style.display = playing ? '' : 'none'; btnPlay.classList.toggle('is-playing', playing); }
 function startTimeDisplay() {
@@ -282,26 +285,172 @@ function startTimeDisplay() {
   }
   rafId = requestAnimationFrame(tick);
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  MEDIDORES CON GRADIENTE PROPORCIONAL (CANVAS)
+// ═══════════════════════════════════════════════════════════════
+function initMeterCanvases() {
+  if (!vuLEl || !vuREl) return;
+  [vuLEl, vuREl].forEach(meter => {
+    meter.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    meter.appendChild(canvas);
+    meter.style.background = 'transparent';
+    meter.style.overflow = 'hidden';
+  });
+  resizeMeterCanvases();
+}
+
+function resizeMeterCanvases() {
+  if (!vuLEl || !vuREl) return;
+  [vuLEl, vuREl].forEach(meter => {
+    const canvas = meter.querySelector('canvas');
+    if (canvas) {
+      canvas.width = meter.clientWidth;
+      canvas.height = meter.clientHeight;
+    }
+  });
+}
+
+function drawMeterBar(canvas, percent) {
+  if (!canvas) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  if (w === 0 || h === 0) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+
+  // Gradiente fijo en todo el ancho del canvas
+  const grad = ctx.createLinearGradient(0, 0, w, 0);
+  grad.addColorStop(0, '#22ff66');    // verde
+  grad.addColorStop(0.45, '#ffcc00'); // naranja
+  grad.addColorStop(1, '#ff2244');    // rojo
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Tapar la parte no activa
+  const cut = w * (percent / 100);
+  if (cut < w) {
+    ctx.fillStyle = '#0c0c10'; // mismo color que el fondo del medidor
+    ctx.fillRect(cut, 0, w - cut, h);
+  }
+}
+
 function startVU() {
-  cancelAnimationFrame(vuRafId); const bufL = new Float32Array(analyserL.fftSize); const bufR = new Float32Array(analyserR.fftSize);
+  cancelAnimationFrame(vuRafId);
+
+  // Asegurar que existen los canvas
+  if (!vuLEl || !vuREl) return;
+  let canvasL = vuLEl.querySelector('canvas');
+  let canvasR = vuREl.querySelector('canvas');
+  if (!canvasL || !canvasR) {
+    initMeterCanvases();   // función que ya debe existir
+    canvasL = vuLEl.querySelector('canvas');
+    canvasR = vuREl.querySelector('canvas');
+    if (!canvasL || !canvasR) return;
+  }
+
+  const bufL = new Float32Array(analyserL.fftSize);
+  const bufR = new Float32Array(analyserR.fftSize);
+
   function tick() {
-    if (!isPlaying) return; analyserL.getFloatTimeDomainData(bufL); analyserR.getFloatTimeDomainData(bufR);
-    const rmsL = Math.sqrt(bufL.reduce((s,v)=>s+v*v,0)/bufL.length); const rmsR = Math.sqrt(bufR.reduce((s,v)=>s+v*v,0)/bufR.length);
-    const pct = v => Math.min(100, Math.max(0, (1+20*Math.log10(Math.max(v,1e-5))/60)*100));
-    vuLEl.style.width = pct(rmsL) + '%'; vuREl.style.width = pct(rmsR) + '%';
-    const toDb = v => 20 * Math.log10(Math.max(v, 1e-9));
-    dbLEl.textContent = toDb(rmsL).toFixed(1); dbREl.textContent = toDb(rmsR).toFixed(1);
-    const pk = Math.max(bufL.reduce((m,v)=>Math.max(m,Math.abs(v)),0), bufR.reduce((m,v)=>Math.max(m,Math.abs(v)),0));
-    peakHold = Math.max(peakHold, pk); const pkDb = toDb(peakHold);
-    peakValEl.textContent = pkDb.toFixed(1) + ' dB'; peakValEl.classList.toggle('clip', peakHold >= 0.99);
-    lufsSum += (rmsL*rmsL + rmsR*rmsR) * 0.5; lufsCount += 1;
-    if (lufsCount % 8 === 0) { const lufs = lufsCount > 0 ? -0.691 + 10*Math.log10(Math.max(lufsSum/lufsCount, 1e-10)) : -Infinity; lufsValEl.textContent = isFinite(lufs) ? lufs.toFixed(1) + ' LU' : '—'; }
+    if (!isPlaying) return;
+
+    // Obtener datos del analizador
+    analyserL.getFloatTimeDomainData(bufL);
+    analyserR.getFloatTimeDomainData(bufR);
+
+    // Pico instantáneo (máximo absoluto en el bloque)
+    let peakL = 0, peakR = 0;
+    for (let i = 0; i < bufL.length; i++) {
+      peakL = Math.max(peakL, Math.abs(bufL[i]));
+      peakR = Math.max(peakR, Math.abs(bufR[i]));
+    }
+    // Limitar a 0 dBFS (1.0)
+    peakL = Math.min(1.0, peakL);
+    peakR = Math.min(1.0, peakR);
+
+    // Convertir a dB
+    const peakDbL = 20 * Math.log10(Math.max(peakL, 1e-6));
+    const peakDbR = 20 * Math.log10(Math.max(peakR, 1e-6));
+
+    // Escala de -60 dB a 0 dB -> 0% a 100% (con curva suave)
+    const dbToPercent = (db) => {
+      const minDb = -60;
+      const maxDb = 0;
+      let p = (db - minDb) / (maxDb - minDb);
+      p = Math.min(1, Math.max(0, p));
+      p = Math.pow(p, 1.2);   // curva para mejor respuesta en niveles bajos
+      return p * 100;
+    };
+
+    const percentL = dbToPercent(peakDbL);
+    const percentR = dbToPercent(peakDbR);
+
+    // Dibujar las barras (solo ancho, el color lo da el gradiente tapado)
+    drawMeterBar(canvasL, percentL);
+    drawMeterBar(canvasR, percentR);
+
+    // ---- Textos RMS (estables) ----
+    const rmsL = Math.sqrt(bufL.reduce((s, v) => s + v * v, 0) / bufL.length);
+    const rmsR = Math.sqrt(bufR.reduce((s, v) => s + v * v, 0) / bufR.length);
+    const dbL = 20 * Math.log10(Math.max(rmsL, 1e-6));
+    const dbR = 20 * Math.log10(Math.max(rmsR, 1e-6));
+    if (dbLEl) dbLEl.textContent = dbL.toFixed(1);
+    if (dbREl) dbREl.textContent = dbR.toFixed(1);
+
+    // ---- Pico HOLD (con caída lenta) ----
+    const globalPeak = Math.min(1.0, Math.max(peakL, peakR));
+    if (globalPeak > peakHold) {
+      peakHold = globalPeak;
+    } else {
+      peakHold = Math.max(0, peakHold * 0.999); // decaimiento
+    }
+    const peakDbHold = 20 * Math.log10(Math.max(peakHold, 1e-6));
+    if (peakValEl) {
+      peakValEl.textContent = peakDbHold.toFixed(1) + ' dB';
+      peakValEl.classList.toggle('clip', peakHold >= 0.99);
+    }
+
+    // ---- LUFS aproximado (mono) ----
+    lufsSum += (rmsL * rmsL + rmsR * rmsR) * 0.5;
+    lufsCount += 1;
+    if (lufsCount % 8 === 0 && lufsValEl) {
+      const lufs = lufsCount > 0 ? -0.691 + 10 * Math.log10(Math.max(lufsSum / lufsCount, 1e-10)) : -Infinity;
+      lufsValEl.textContent = isFinite(lufs) ? lufs.toFixed(1) + ' LU' : '—';
+    }
+
     vuRafId = requestAnimationFrame(tick);
   }
+
   vuRafId = requestAnimationFrame(tick);
 }
-function resetMeters() { peakHold = 0; lufsSum = 0; lufsCount = 0; peakValEl.textContent = '—'; lufsValEl.textContent = '—'; peakValEl.classList.remove('clip'); dbLEl.textContent = '—'; dbREl.textContent = '—'; }
-btnPeakRst && btnPeakRst.addEventListener('click', resetMeters);
+
+function resetMeters() {
+  peakHold = 0;
+  lufsSum = 0;
+  lufsCount = 0;
+  peakValEl.textContent = '—';
+  lufsValEl.textContent = '—';
+  peakValEl.classList.remove('clip');
+  dbLEl.textContent = '—';
+  dbREl.textContent = '—';
+  if (vuLEl && vuREl) {
+    const cL = vuLEl.querySelector('canvas');
+    const cR = vuREl.querySelector('canvas');
+    if (cL && cR) {
+      const ctxL = cL.getContext('2d');
+      const ctxR = cR.getContext('2d');
+      ctxL.clearRect(0, 0, cL.width, cL.height);
+      ctxR.clearRect(0, 0, cR.width, cR.height);
+    }
+  }
+}
+window.addEventListener('resize', () => resizeMeterCanvases());
 
 // CHAIN WIRING
 function rewireChain() {
@@ -365,17 +514,56 @@ function buildModuleThumb(mod) {
   const def = MODULE_DEFS[mod.type];
   const translatedLabel = getTranslation('mod.' + mod.type) || def.label;
   const thumb = document.createElement('div');
-  thumb.className = 'mod-thumb'; thumb.dataset.id = mod.id; thumb.style.setProperty('--mc', def.color);
-  thumb.innerHTML = `
-    <span class="drag-handle">⠿</span>
-    <div class="thumb-title">${translatedLabel}</div>
-    <div class="thumb-controls">
-      <button class="thumb-btn byp-btn" data-id="${mod.id}">BYP</button>
-      <button class="thumb-btn rm-btn" data-id="${mod.id}">✕</button>
-    </div>`;
-  thumb.addEventListener('click', (e) => { if(!e.target.classList.contains('thumb-btn')) setActiveModule(mod.id); });
-  thumb.querySelector('.byp-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleBypass(mod.id); });
-  thumb.querySelector('.rm-btn').addEventListener('click', (e) => { e.stopPropagation(); removeModule(mod.id); });
+  thumb.className = 'mod-thumb';
+  thumb.dataset.id = mod.id;
+  thumb.style.setProperty('--mc', def.color);
+
+  // LED de power (simula encendido/apagado según bypass)
+  const led = document.createElement('div');
+  led.className = 'power-led';
+
+  const dragHandle = document.createElement('span');
+  dragHandle.className = 'drag-handle';
+  dragHandle.textContent = '⠿';
+
+  const title = document.createElement('div');
+  title.className = 'thumb-title';
+  title.textContent = translatedLabel;
+
+  const controls = document.createElement('div');
+  controls.className = 'thumb-controls';
+
+  const bypassBtn = document.createElement('button');
+  bypassBtn.className = 'thumb-btn byp-btn';
+  bypassBtn.dataset.id = mod.id;
+  bypassBtn.textContent = 'BYP';
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'thumb-btn rm-btn';
+  removeBtn.dataset.id = mod.id;
+  removeBtn.textContent = '✕';
+
+  controls.appendChild(bypassBtn);
+  controls.appendChild(removeBtn);
+
+  thumb.appendChild(led);
+  thumb.appendChild(dragHandle);
+  thumb.appendChild(title);
+  thumb.appendChild(controls);
+
+  // Eventos
+  thumb.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('thumb-btn')) setActiveModule(mod.id);
+  });
+  bypassBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleBypass(mod.id);
+  });
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeModule(mod.id);
+  });
+
   return thumb;
 }
 
@@ -384,34 +572,85 @@ function buildModuleCard(mod) {
   const translatedLabel = getTranslation('mod.' + mod.type) || def.label;
   const color = def.color;
   const card = document.createElement('div');
-  card.className = 'mod-card' + (def.wide ? ' is-wide' : ''); card.dataset.id = mod.id; card.style.setProperty('--mc', color);
-  const strip = document.createElement('div'); strip.className='mod-strip'; card.appendChild(strip);
-  const hd = document.createElement('div'); hd.className='mod-hd';
-  hd.innerHTML=`<div class="mod-led" id="led-${mod.id}"></div><span class="mod-title">${translatedLabel}</span><button class="btn-byp" data-id="${mod.id}">BYP</button>`;
+  card.className = 'mod-card' + (def.wide ? ' is-wide' : '');
+  card.dataset.id = mod.id;
+  card.style.setProperty('--mc', color);
+
+  // Strip superior (color de módulo)
+  const strip = document.createElement('div');
+  strip.className = 'mod-strip';
+  card.appendChild(strip);
+
+  // Cabecera
+  const hd = document.createElement('div');
+  hd.className = 'mod-hd';
+  const led = document.createElement('div');
+  led.className = 'mod-led';
+  led.id = `led-${mod.id}`;
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'mod-title';
+  titleSpan.textContent = translatedLabel;
+  const bypassBtn = document.createElement('button');
+  bypassBtn.className = 'btn-byp';
+  bypassBtn.dataset.id = mod.id;
+  bypassBtn.textContent = 'BYP';
+  hd.appendChild(led);
+  hd.appendChild(titleSpan);
+  hd.appendChild(bypassBtn);
   card.appendChild(hd);
-  hd.querySelector('.btn-byp').addEventListener('click', () => toggleBypass(mod.id));
-  const body = document.createElement('div'); body.className='mod-body';
+
+  bypassBtn.addEventListener('click', () => toggleBypass(mod.id));
+
+  // Cuerpo (parámetros)
+  const body = document.createElement('div');
+  body.className = 'mod-body';
 
   if (mod.type === 'eq') {
     def.bands.forEach(band => {
-      const col=document.createElement('div'); col.className='band-col';
-      const sep=document.createElement('div'); sep.className='band-sep'; sep.textContent=band.label; col.appendChild(sep);
-      ['Freq','Gain','Q'].forEach(s => col.appendChild(buildKnob(mod,band.prefix+s,def.params[band.prefix+s],color)));
+      const col = document.createElement('div');
+      col.className = 'band-col';
+      const sep = document.createElement('div');
+      sep.className = 'band-sep';
+      sep.textContent = band.label;
+      col.appendChild(sep);
+      ['Freq','Gain','Q'].forEach(s => {
+        col.appendChild(buildKnob(mod, band.prefix + s, def.params[band.prefix + s], color));
+      });
       body.appendChild(col);
     });
   } else if (mod.type === 'filter') {
-    const c1=document.createElement('div'); c1.className='band-col'; const s1=document.createElement('div'); s1.className='band-sep'; s1.textContent='HIGH-PASS'; c1.appendChild(s1);
-    c1.appendChild(buildKnob(mod,'hpFreq',def.params.hpFreq,color)); c1.appendChild(buildKnob(mod,'hpQ',def.params.hpQ,color)); c1.appendChild(buildToggle(mod,'hpOn',def.params.hpOn,color));
+    const c1 = document.createElement('div');
+    c1.className = 'band-col';
+    const s1 = document.createElement('div');
+    s1.className = 'band-sep';
+    s1.textContent = 'HIGH-PASS';
+    c1.appendChild(s1);
+    c1.appendChild(buildKnob(mod, 'hpFreq', def.params.hpFreq, color));
+    c1.appendChild(buildKnob(mod, 'hpQ', def.params.hpQ, color));
+    c1.appendChild(buildToggle(mod, 'hpOn', def.params.hpOn, color));
     body.appendChild(c1);
-    const c2=document.createElement('div'); c2.className='band-col'; const s2=document.createElement('div'); s2.className='band-sep'; s2.textContent='LOW-PASS'; c2.appendChild(s2);
-    c2.appendChild(buildKnob(mod,'lpFreq',def.params.lpFreq,color)); c2.appendChild(buildKnob(mod,'lpQ',def.params.lpQ,color)); c2.appendChild(buildToggle(mod,'lpOn',def.params.lpOn,color));
+
+    const c2 = document.createElement('div');
+    c2.className = 'band-col';
+    const s2 = document.createElement('div');
+    s2.className = 'band-sep';
+    s2.textContent = 'LOW-PASS';
+    c2.appendChild(s2);
+    c2.appendChild(buildKnob(mod, 'lpFreq', def.params.lpFreq, color));
+    c2.appendChild(buildKnob(mod, 'lpQ', def.params.lpQ, color));
+    c2.appendChild(buildToggle(mod, 'lpOn', def.params.lpOn, color));
     body.appendChild(c2);
   } else {
-    const row=document.createElement('div'); row.className='knob-row';
-    Object.entries(def.params).forEach(([key,pDef]) => row.appendChild(buildKnob(mod,key,pDef,color)));
+    const row = document.createElement('div');
+    row.className = 'knob-row';
+    Object.entries(def.params).forEach(([key, pDef]) => {
+      row.appendChild(buildKnob(mod, key, pDef, color));
+    });
     body.appendChild(row);
   }
-  card.appendChild(body); return card;
+  card.appendChild(body);
+
+  return card;
 }
 
 function buildKnob(mod, key, pDef, color) {
@@ -541,7 +780,23 @@ function encodeWAV(buffer) {
   for(let i=0;i<len;i++)for(let c=0;c<nc;c++){ const s=Math.max(-1,Math.min(1,ch[c][i]));v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2; } return ab;
 }
 
-btnClear.addEventListener('click',()=>{ if(modules.length&&confirm('Remove all modules?'))clearChain(); });
+btnClear.addEventListener('click', () => {
+  if (!confirm('Clear all modules and audio?')) return;
+  stopPlayback(true);
+  clearChain();
+  audioBuffer = null;
+  wfImageData = null;
+  const ctx2 = wfCanvas.getContext('2d');
+  ctx2.clearRect(0, 0, wfCanvas.width, wfCanvas.height);
+  wfEmpty.classList.remove('hidden');
+  trackNameEl.textContent = getTranslation('ui.no_audio');
+  timeCurEl.textContent = '00:00.0';
+  timeTotEl.textContent = '00:00.0';
+  btnPlay.disabled = true;
+  btnStop.disabled = true;
+  resetMeters();
+  applyOutGain(0);
+});
 function clamp(v,mn,mx){return Math.min(mx,Math.max(mn,v));} function dbToGain(db){return Math.pow(10,db/20);} function fmtTime(s){ const m=Math.floor(s/60),sc=(s%60).toFixed(1).padStart(4,'0'); return `${String(m).padStart(2,'0')}:${sc}`; }
 
 if (btnGlobalBypass) {
@@ -610,17 +865,15 @@ if (btnHelp) {
 // ═══════════════════════════════════════════════════════════════
 updatePlaceholder();
 setActiveModule(null);
+initMeterCanvases();                // <-- Inicializar canvas de medidores
+resizeMeterCanvases();
 
-// Iniciar en INGLÉS por defecto, privacidad estricta
+// Idioma por defecto
 const defaultLang = 'en';
 const langSelect = document.getElementById('lang-select');
 if (langSelect) {
   langSelect.value = defaultLang;
-
-  // Evitar que el clic cierre el menú
   langSelect.addEventListener('click', (e) => e.stopPropagation());
-
-  // Ejecutar el cambio de idioma al seleccionar
   langSelect.addEventListener('change', (e) => {
     setLanguage(e.target.value);
   });

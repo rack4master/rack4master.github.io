@@ -1,6 +1,5 @@
 /* ============================================================
-   MASTER RACK — Analog Rack Stylesheet
-   (T-RackS Layout + Polished & Uncompressed)
+   MASTER RACK — Analog Rack Stylesheet (Sin tornillos)
    ============================================================ */
 
 *, *::before, *::after {
@@ -39,31 +38,23 @@ html, body {
   overflow: hidden;
 }
 
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: .025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  z-index: 9999;
+body {
+  padding: 16px;
+  border-radius: 20px;
 }
 
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--bg);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--brd2);
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: var(--brd3);
 }
@@ -110,14 +101,6 @@ button {
   letter-spacing: 7px;
   color: var(--tx3);
   margin-left: 2px;
-}
-
-.logo-v {
-  font-family: var(--fnt-mono);
-  font-size: 10px;
-  color: var(--tx3);
-  letter-spacing: 1px;
-  margin-top: 2px;
 }
 
 .transport {
@@ -253,7 +236,7 @@ button {
 /* ─── App Body Layout ────────────────────────────────────── */
 .app-body {
   display: flex;
-  height: calc(100vh - 74px - 36px);
+  height: calc(100vh - 74px - 36px - 32px);
   overflow: hidden;
 }
 
@@ -275,7 +258,7 @@ button {
   margin-bottom: 7px;
 }
 
-/* ─── Waveform (TOP) ─────────────────────────────────────── */
+/* Waveform */
 .wf-section {
   flex-shrink: 0;
 }
@@ -327,7 +310,7 @@ button {
   opacity: 0;
 }
 
-/* ─── Editor Section (CENTER) ────────────────────────────── */
+/* Editor Section */
 .editor-section {
   flex: 1;
   min-height: 0;
@@ -364,10 +347,10 @@ button {
   z-index: 2;
 }
 
-/* ─── Chain Section (BOTTOM HORIZONTAL) ──────────────────── */
+/* Chain Section (más alto) */
 .chain-section {
   flex-shrink: 0;
-  height: 160px;
+  height: 180px;
   display: flex;
   flex-direction: column;
 }
@@ -380,15 +363,16 @@ button {
 }
 
 .btn-clear {
-  height: 24px;
-  padding: 0 10px;
+  height: 30px;
+  padding: 0 14px;
   background: transparent;
   border: 1px solid var(--brd);
   color: var(--tx3);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   border-radius: 2px;
+  cursor: pointer;
   transition: all .15s;
 }
 
@@ -436,24 +420,22 @@ button {
   font-size: 16px;
 }
 
-/* LA MAGIA ESTÁ AQUÍ: flex: 1 fuerza a la zona a ocupar TODO el hueco disponible */
 .chain-area.horizontal {
   position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 14px;
+  gap: 28px; /* más separación entre módulos */
   height: 100%;
   min-height: 110px;
-  flex: 1; /* <-- ESTO HACE QUE LA ZONA DE CAÍDA SEA GIGANTE */
-  margin: 0 20px; /* Separación con el INPUT y OUTPUT */
+  flex: 1;
+  margin: 0 20px;
   align-items: center;
-  justify-content: center; /* Centra los módulos al soltarlos */
+  justify-content: center;
   border-radius: 6px;
   transition: all 0.2s ease;
 }
 
-/* Añadimos un chivato visual: al arrastrar se iluminará el borde de TODA el área */
 .chain-area.horizontal.drag-over {
   background-color: #0c0c0e;
   box-shadow: inset 0 0 0 2px rgba(255, 140, 0, 0.4);
@@ -466,10 +448,11 @@ button {
   align-items: center;
   justify-content: center;
   font-family: var(--fnt-display);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 2px;
-  color: var(--tx3);
-  pointer-events: none; /* Obliga al ratón a ignorar el texto y apuntar a la zona de caída real */
+  color: var(--tx2);
+  opacity: 0.7;
+  pointer-events: none;
   white-space: nowrap;
 }
 
@@ -477,111 +460,151 @@ button {
   display: none;
 }
 
-/* ─── THUMBNAIL (Carril Inferior) ────────────────────────── */
+/* ─── THUMBNAIL (más grande, sin tornillos) ─────────────── */
 .mod-thumb {
-  width: 140px;
-  height: 90px;
-  background: var(--surf);
-  border: 1px solid var(--brd2);
-  border-top: 4px solid var(--mc);
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 8px;
+  width: 160px;
+  height: 110px;
+  background: radial-gradient(circle at 25% 40%, #2c2c34, #121218);
+  background-size: 8px 8px;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px);
+  background-repeat: no-repeat;
+  border: 1px solid #3a3a44;
+  border-radius: 6px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05);
+  position: relative;
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   transition: all 0.15s;
-  position: relative;
 }
 
+/* Efectos hover y activo (sin perder textura) */
 .mod-thumb:hover {
   border-color: var(--tx3);
-  background: var(--surf2);
+  background: radial-gradient(circle at 25% 40%, #2c2c34, #121218);
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px);
 }
-
 .mod-thumb.active {
   border-color: var(--mc);
-  background: #1a1a24;
+  background: radial-gradient(circle at 25% 40%, #2c2c34, #121218);
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 8px);
   box-shadow: 0 0 16px color-mix(in srgb, var(--mc) 35%, transparent);
   transform: translateY(-3px);
 }
-
-/* Estilos de BYPASS en la miniatura */
 .mod-thumb.bypassed {
   background: #0c0c10;
   border-color: var(--brd);
-  border-top-color: var(--tx3);
+  opacity: 0.7;
 }
 
-.mod-thumb.bypassed .thumb-title,
-.mod-thumb.bypassed .drag-handle {
-  opacity: 0.35;
+/* Orejetas más estrechas (níquel oscuro metalizado) */
+.mod-thumb::before, .mod-thumb::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  width: 8px; /* antes 14px, más estrechas */
+  background: linear-gradient(145deg, #6a6a7a, #3a3a48, #4a4a58, #2a2a38);
+  border-left: 1px solid rgba(255,255,255,0.2);
+  border-right: 1px solid rgba(0,0,0,0.4);
+  border-radius: 3px;
+  z-index: 0;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 1px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.4);
+}
+.mod-thumb::before {
+  left: -6px;
+  border-radius: 4px 0 0 4px;
+}
+.mod-thumb::after {
+  right: -6px;
+  border-radius: 0 4px 4px 0;
 }
 
+/* LED de power (derecha, más abajo) */
+.mod-thumb .power-led {
+  position: absolute;
+  top: 24px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22ff66;
+  box-shadow: 0 0 6px #22ff66;
+  z-index: 10;
+  transition: all 0.2s;
+}
+.mod-thumb.bypassed .power-led {
+  background: #ff3366;
+  box-shadow: 0 0 6px #ff3366;
+}
+
+/* Área de arrastre */
 .mod-thumb .drag-handle {
   position: absolute;
   top: 4px;
   left: 6px;
-  font-size: 12px;
-  opacity: 0.5;
+  font-size: 16px;
+  opacity: 0.8;
+  cursor: grab;
 }
 
-.thumb-title {
+/* Título */
+.mod-thumb .thumb-title {
   font-family: var(--fnt-display);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
   color: var(--tx);
   text-align: center;
-  margin-top: 8px;
+  margin-top: 12px;
+  margin-bottom: 6px;
 }
 
+/* Botones más grandes y pegados al borde inferior */
 .thumb-controls {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   justify-content: center;
+  position: absolute;
+  bottom: 8px;  /* pegados al borde inferior */
+  left: 0;
+  right: 0;
 }
-
 .thumb-btn {
   background: var(--surf2);
   border: 1px solid var(--brd);
   color: var(--tx3);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: bold;
-  border-radius: 3px;
-  padding: 4px 10px;
+  border-radius: 4px;
+  padding: 4px 12px;
   transition: 0.15s;
 }
-
 .thumb-btn:hover {
   color: var(--tx);
   border-color: var(--tx3);
 }
-
 .thumb-btn.byp-btn.bypassed {
   color: #ff3366 !important;
   border-color: #ff3366 !important;
   background: rgba(255, 51, 102, 0.15) !important;
   box-shadow: 0 0 8px rgba(255, 51, 102, 0.2) !important;
 }
-
 .thumb-btn.rm-btn:hover {
   background: var(--red);
   color: #fff;
   border-color: var(--red);
 }
 
-/* ─── MODULE CARD (Editor Central) ───────────────────────── */
+/* ─── MODULE CARD (Editor Central, sin tornillos) ───────── */
 .mod-card {
   width: auto;
   max-width: 90%;
-  background: var(--surf);
-  border: 1px solid var(--brd2);
-  border-radius: 5px;
+  background: radial-gradient(circle at 25% 40%, #2c2c34, #121218);
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px);
+  background-repeat: no-repeat;
+  border: 1px solid #3a3a44;
+  border-radius: 6px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.9), 0 0 0 1px var(--brd3);
   position: relative;
   animation: fadeIn .2s ease;
@@ -590,11 +613,17 @@ button {
   flex-direction: column;
 }
 
+/* Mantener textura en modo claro */
+body.light-theme .mod-card,
+body.light-theme .mod-thumb {
+  background: radial-gradient(circle at 25% 40%, #e0e0e6, #c8c8d0);
+  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 8px);
+}
+
 .mod-card.bypassed {
   opacity: 1 !important;
   filter: none !important;
 }
-
 .mod-card.bypassed .mod-body,
 .mod-card.bypassed .mod-strip,
 .mod-card.bypassed .mod-title,
@@ -616,26 +645,22 @@ button {
   background: var(--surf2);
   border-bottom: 1px solid var(--brd);
 }
-
 .mod-led {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--green);
   box-shadow: 0 0 6px var(--green);
   flex-shrink: 0;
   transition: all .2s;
 }
-
 .mod-led.off {
   background: var(--brd2);
   box-shadow: none;
 }
-
 .mod-led:not(.off) {
   animation: pulse-led 2.4s ease-in-out infinite;
 }
-
 .mod-title {
   font-family: var(--fnt-display);
   font-size: 14px;
@@ -644,30 +669,27 @@ button {
   color: var(--tx);
   flex: 1;
 }
-
 .btn-byp {
-  height: 22px;
-  padding: 0 10px;
+  height: 26px;
+  padding: 0 12px;
   background: transparent;
   border: 1px solid var(--brd2);
   color: var(--tx2);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
   border-radius: 3px;
   transition: all .12s;
 }
-
 .btn-byp:hover {
   color: var(--green);
   border-color: var(--green);
 }
-
 .btn-byp.bypassed {
   color: #ff3366 !important;
   border-color: #ff3366 !important;
   background: rgba(255, 51, 102, 0.15) !important;
-  font-size: 10.5px !important;
+  font-size: 11px !important;
   font-weight: 900 !important;
   box-shadow: 0 0 8px rgba(255, 51, 102, 0.2) !important;
 }
@@ -678,6 +700,34 @@ button {
   justify-content: center;
   gap: 20px;
 }
+
+/* Orejas laterales en tarjeta central (más estrechas) */
+.mod-card::before, .mod-card::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  width: 8px;
+  background: linear-gradient(145deg, #6a6a7a, #3a3a48, #4a4a58, #2a2a38);
+  border-left: 1px solid rgba(255,255,255,0.2);
+  border-right: 1px solid rgba(0,0,0,0.4);
+  border-radius: 3px;
+  z-index: 0;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 1px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.4);
+}
+.mod-card::before {
+  left: -6px;
+  border-radius: 4px 0 0 4px;
+}
+.mod-card::after {
+  right: -6px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* El resto del CSS (knobs, toggles, sidebar, etc.) se mantiene sin cambios */
+/* ... (todo lo que sigue desde ".band-col" hasta el final, como en tu versión original) ... */
+
+/* ==================== A PARTIR DE AQUÍ, EL RESTO DEL CSS ORIGINAL SIN MODIFICAR ==================== */
 
 /* ─── Elementos Internos de la Card ──────────────────────── */
 .band-col {
@@ -1045,7 +1095,7 @@ button {
 .meter-bar-track {
   flex: 1;
   height: 14px;
-  background: var(--inset);
+  background: #0c0c10;
   border: 1px solid var(--brd);
   border-radius: 2px;
   overflow: hidden;
@@ -1053,9 +1103,10 @@ button {
 
 .meter-bar-fill {
   height: 100%;
-  width: 0%;
-  background: linear-gradient(to right, var(--green), #aaff22 70%, var(--amber) 90%, var(--red));
-  transition: width .04s;
+  width: 100%;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
 }
 
 .meter-db {
@@ -1122,6 +1173,7 @@ button {
   transform: scale(1.05);
 }
 
+/* Animaciones */
 @keyframes fadeIn {
   from { opacity:0; transform:translateY(6px); }
   to { opacity:1; transform:translateY(0); }
@@ -1132,13 +1184,13 @@ button {
   50% { opacity:.5; }
 }
 
-/* ─── Menú Desplegable & Copyright & Tema Claro ───────────────── */
+/* Menú desplegable */
 .dropdown-menu { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--surf); border: 1px solid var(--brd2); border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.8); min-width: 160px; z-index: 1000; overflow: hidden; display: flex; flex-direction: column; }
 .dropdown-menu.hidden { display: none; }
 .dropdown-item { padding: 10px 16px; font-family: var(--fnt-ui); font-size: 13px; font-weight: 600; color: var(--tx); cursor: pointer; transition: background 0.15s; }
 .dropdown-item:hover { background: var(--surf2); color: var(--amber); }
 
-/* ─── Footer & Enlaces ───────────────────────────────────────── */
+/* Footer */
 .app-footer {
   height: 36px;
   display: flex;
@@ -1156,7 +1208,7 @@ button {
 .foot-link { color: var(--tx2); text-decoration: none; transition: color 0.15s; font-weight: 600; }
 .foot-link:hover { color: var(--amber); }
 
-/* ─── Sistema de Modales ─────────────────────────────────────── */
+/* Modales */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);
@@ -1184,7 +1236,7 @@ button {
 .modal-close:hover { color: var(--red); }
 .modal-body { padding: 24px 18px; font-family: var(--fnt-ui); font-size: 14px; color: var(--tx2); line-height: 1.6; min-height: 120px; }
 
-/* Variables del Modo Claro (Sobrescribe los colores globales) */
+/* Modo claro */
 body.light-theme {
   --bg:          #e0e0e6;
   --chassis:     #d4d4dc;
@@ -1199,4 +1251,4 @@ body.light-theme {
   --tx2:         #4a4a55;
   --tx3:         #6a6a75;
 }
-body.light-theme::after { opacity: 0.05; } /* Oscurece un poco la textura en modo claro */
+body.light-theme::after { opacity: 0.05; }
