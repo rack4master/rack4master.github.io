@@ -8,7 +8,7 @@ AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 <img src="pic.png" alt="Rack4master screenshot" width="600" />
 
 
-(No data is sent to any server – everything happens locally on your machine).
+(NOTE: No data is sent to any server – everything happens locally on your machine).
 
 ## ✨ Features
 
