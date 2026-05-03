@@ -5,7 +5,9 @@ It allows you to load any audio file, build a custom chain of processors (dynami
 
 AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
-No data is sent to any server – everything happens locally on your machine.
+![Rack4master screenshot](pic.png)
+
+(No data is sent to any server – everything happens locally on your machine).
 
 ## ✨ Features
 
