@@ -16,7 +16,7 @@ If you find it useful, **help us grow** by giving a star on GitHub:
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/your-username/rack4master?style=social)](https://github.com/your-username/rack4master)
 
-You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR) to keep improving the tool.
+You can also [![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR)to keep improving the tool.
 
 ## ✨ Features
 
@@ -95,13 +95,9 @@ You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DV
 
 For questions, suggestions or bug reports, please contact:
 
+**Author:** Francesc Llorens Cerdà
+
 **Email:** rackmaster@proton.me
-
----
-
-## 👤 Author
-
-**Francesc Llorens Cerdà**
 
 ---
 
