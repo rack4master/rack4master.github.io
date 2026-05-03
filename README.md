@@ -2,6 +2,7 @@
 
 **RACK4MASTER** is a professional web‑based audio mastering rack that runs entirely in your browser.  
 It allows you to load any audio file, build a custom chain of processors (dynamics, filters, spatial effects, saturation, etc.), adjust parameters in real time, and export the processed audio as a WAV file.
+
 AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
 No data is sent to any server – everything happens locally on your machine.
