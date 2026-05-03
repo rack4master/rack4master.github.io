@@ -6,7 +6,7 @@ export const label = 'SATURADOR';
 export const color = '#ff6633';
 
 export const params = {
-  drive: { label:'DRIVE', min:1, max:100, def:10, step:0.5, unit:'x' },
+  drive: { label:'DRIVE', min:1, max:100, def:2, step:0.5, unit:'x' },
   tone: { label:'TONE', min:-10, max:10, def:0, step:0.5, unit:'dB' },
   mix: { label:'MIX', min:0, max:100, def:50, step:1, unit:'%' },
   output: { label:'OUTPUT', min:-18, max:6, def:0, step:0.5, unit:'dB' }
@@ -52,7 +52,7 @@ export function updateParam(nodes, key, value, currentTime) {
 }
 
 export const presets = {
-  'Default': { drive: 10, tone: 0, mix: 50, output: 0 },
+  'Default': { drive: 2, tone: 0, mix: 50, output: 0 },
   'Tube Warmth': { drive: 15, tone: 2, mix: 60, output: 1 },
   'Tape Saturation': { drive: 8, tone: 1, mix: 70, output: 0 },
   'Amp Drive': { drive: 25, tone: 3, mix: 80, output: 2 },

@@ -66,6 +66,8 @@ export function startVU() {
   if (!window.audioCtx || !window.audioCtx.analyserL || !window.audioCtx.analyserR) return;
   const analyserL = window.audioCtx.analyserL;
   const analyserR = window.audioCtx.analyserR;
+
+  // Arrays reutilizables (fuera del closure para evitar GC)
   const bufL = new Float32Array(analyserL.fftSize);
   const bufR = new Float32Array(analyserR.fftSize);
 
@@ -121,6 +123,14 @@ export function startVU() {
     vuRafId = requestAnimationFrame(tick);
   }
   vuRafId = requestAnimationFrame(tick);
+}
+
+// Nueva función para detener la animación explícitamente
+export function stopVU() {
+  if (vuRafId) {
+    cancelAnimationFrame(vuRafId);
+    vuRafId = null;
+  }
 }
 
 export function resetMeters() {

@@ -5,8 +5,10 @@ import { buildAudioNodes, ensureCtx, rewireChain, applyParam } from './core/audi
 import { buildModuleThumb } from './ui/thumb.js';
 import { buildModuleCard } from './ui/card.js';
 import { drawWaveformFull, drawOverlay } from './ui/waveform.js';
-import { initMeters, startVU, resetMeters } from './ui/meters.js';
+import { initMeters, startVU, stopVU, resetMeters } from './ui/meters.js';
 import { setKnobDisplay } from './ui/knobs.js';
+import { renderOffline, downloadWav } from './export.js';
+import { INSTRUMENT_PRESETS } from './presets.js';
 import {
   modules, nextId, activeModuleId, globalBypass,
   loopEnabled, loopStart, loopEnd, audioBuffer, isPlaying, startedAt, pauseOffset,
@@ -33,8 +35,18 @@ function updateAllTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
     const translation = window.getTranslation(key);
-    if (translation) el.innerHTML = translation;
+    if (!translation) return;
+
+    // Para optgroup usamos el atributo label, NO innerHTML (así no borramos los option)
+    if (el.tagName === 'OPTGROUP') {
+      el.label = translation;
+      return;
+    }
+
+    // Para el resto de elementos, actualizamos el contenido
+    el.innerHTML = translation;
   });
+
   document.querySelectorAll('.slot').forEach(slot => {
     const type = slot.dataset.type;
     if (type) {
@@ -45,6 +57,7 @@ function updateAllTranslations() {
       }
     }
   });
+
   modules.forEach(mod => {
     const newName = window.getTranslation('mod.' + mod.type) || MODULE_DEFS[mod.type].label;
     if (mod.thumbEl) mod.thumbEl.querySelector('.thumb-title').textContent = newName;
@@ -64,96 +77,17 @@ window.setKnobDisplay = setKnobDisplay;
 // Control de habilitado/deshabilitado de controles del módulo
 // --------------------------------------------------------------
 function updateModuleControlsState(mod) {
-  const disabledByGlobal = globalBypass;
+  const disabled = mod.bypassed || globalBypass;
   const card = mod.cardEl;
   const thumb = mod.thumbEl;
-  if (!card) return;
-
-  const controlsDisabled = mod.bypassed || globalBypass;
-  const knobs = card.querySelectorAll('.knob-wrap, .tog-wrap');
-  knobs.forEach(knob => {
-    if (controlsDisabled) {
-      knob.setAttribute('data-disabled', 'true');
-      knob.style.opacity = '0.6';
-      knob.style.cursor = 'not-allowed';
-    } else {
-      knob.setAttribute('data-disabled', 'false');
-      knob.style.opacity = '';
-      knob.style.cursor = '';
-    }
-  });
-
-  const resetBtn = card.querySelector('.btn-reset');
-  if (resetBtn) {
-    if (controlsDisabled) {
-      resetBtn.setAttribute('data-disabled', 'true');
-      resetBtn.style.opacity = '0.6';
-      resetBtn.style.cursor = 'not-allowed';
-    } else {
-      resetBtn.setAttribute('data-disabled', 'false');
-      resetBtn.style.opacity = '';
-      resetBtn.style.cursor = 'pointer';
-    }
-  }
-
-  const presetSelect = card.querySelector('.mod-preset-select');
-  if (presetSelect) {
-    if (controlsDisabled) {
-      presetSelect.disabled = true;
-      presetSelect.style.opacity = '0.6';
-      presetSelect.style.cursor = 'not-allowed';
-    } else {
-      presetSelect.disabled = false;
-      presetSelect.style.opacity = '';
-      presetSelect.style.cursor = 'pointer';
-    }
-  }
-
-  const infoBtnCard = card.querySelector('.btn-info');
-  if (infoBtnCard) {
-    if (controlsDisabled) {
-      infoBtnCard.disabled = true;
-      infoBtnCard.style.opacity = '0.6';
-      infoBtnCard.style.cursor = 'not-allowed';
-    } else {
-      infoBtnCard.disabled = false;
-      infoBtnCard.style.opacity = '';
-      infoBtnCard.style.cursor = 'pointer';
-    }
-  }
-
-  const bypassBtnCard = card.querySelector('.btn-byp');
-  if (bypassBtnCard) {
-    if (disabledByGlobal) {
-      bypassBtnCard.disabled = true;
-      bypassBtnCard.style.opacity = '0.6';
-      bypassBtnCard.style.cursor = 'not-allowed';
-    } else {
-      bypassBtnCard.disabled = false;
-      bypassBtnCard.style.opacity = '';
-      bypassBtnCard.style.cursor = 'pointer';
-    }
-  }
-
-  if (thumb) {
-    const bypassBtnThumb = thumb.querySelector('.byp-btn');
-    if (bypassBtnThumb) {
-      if (disabledByGlobal) {
-        bypassBtnThumb.disabled = true;
-        bypassBtnThumb.style.opacity = '0.6';
-        bypassBtnThumb.style.cursor = 'not-allowed';
-      } else {
-        bypassBtnThumb.disabled = false;
-        bypassBtnThumb.style.opacity = '';
-        bypassBtnThumb.style.cursor = 'pointer';
-      }
-    }
-  }
+  if (card) card.classList.toggle('module-disabled', disabled);
+  if (thumb) thumb.classList.toggle('module-disabled', disabled);
 }
 
 // --------------------------------------------------------------
 // RESET MODULE PARAMS
 // --------------------------------------------------------------
+
 function resetModuleParams(mod) {
   if (mod.bypassed || globalBypass) return;
 
@@ -195,6 +129,11 @@ function resetModuleParams(mod) {
       });
     }
   });
+
+  // Resetear el selector de presets a "Presets"
+  if (mod.presetSelect) {
+    mod.presetSelect.value = '';
+  }
 }
 
 window.resetModuleParams = (id) => {
@@ -407,7 +346,7 @@ function refreshControlsState() {
   if (instrumentSelect) instrumentSelect.disabled = !hasAudio;
   if (globalBypassBtnEl) globalBypassBtnEl.disabled = !hasAudio;
   if (resetPeakBtnEl) resetPeakBtnEl.disabled = !hasAudio;
-  if (clearModulesBtn) clearModulesBtn.disabled = false; // siempre habilitado
+  if (clearModulesBtn) clearModulesBtn.disabled = false;
 }
 
 // --------------------------------------------------------------
@@ -503,6 +442,7 @@ function pausePlayback() {
   setIsPlaying(false);
   updatePlayPauseIcon();
   if (rafId) cancelAnimationFrame(rafId);
+  stopVU();
 }
 
 function startTimeDisplay() {
@@ -756,7 +696,7 @@ if (resetPeakBtn) {
 }
 
 // --------------------------------------------------------------
-// PRESETS DE INSTRUMENTOS
+// PRESETS DE INSTRUMENTOS (usando js/presets.js)
 // --------------------------------------------------------------
 const instrumentSelect = document.getElementById('instrument-select');
 if (instrumentSelect) {
@@ -766,7 +706,7 @@ if (instrumentSelect) {
     if (!val) return;
 
     if (val === 'empty') {
-      if (confirm('¿Eliminar todos los módulos de la cadena?')) {
+      if (confirm(window.getTranslation('ui.confirm_clear_modules') || 'Remove all modules from the chain?')) {
         [...modules].forEach(m => removeModule(m.id));
       } else {
         instrumentSelect.value = '';
@@ -774,24 +714,17 @@ if (instrumentSelect) {
       return;
     }
 
-    if (!confirm(`¿Reemplazar la cadena actual con los módulos predefinidos para "${val}"?`)) {
+    const chain = INSTRUMENT_PRESETS[val];
+    if (!chain) return;
+
+    const presetName = instrumentSelect.options[instrumentSelect.selectedIndex].textContent;
+    if (!confirm(`Replace current chain with the "${presetName}" preset?`)) {
       instrumentSelect.value = '';
       return;
     }
 
     [...modules].forEach(m => removeModule(m.id));
-
-    if (val === 'full') {
-      addModule('eq'); addModule('compressor'); addModule('widener'); addModule('limiter');
-    } else if (val === 'drums') {
-      addModule('gate'); addModule('eq'); addModule('compressor'); addModule('reverb');
-    } else if (val === 'guitar') {
-      addModule('gate'); addModule('compressor'); addModule('saturator'); addModule('eq'); addModule('chorus');
-    } else if (val === 'voices') {
-      addModule('deesser'); addModule('eq'); addModule('compressor'); addModule('delay'); addModule('reverb');
-    } else if (val === 'keys') {
-      addModule('eq'); addModule('chorus'); addModule('widener'); addModule('delay'); addModule('reverb');
-    }
+    chain.forEach(type => addModule(type));
 
     if (modules.length > 0) {
       setActiveModule(modules[0].id);
@@ -850,66 +783,26 @@ loadPresetBtnElem?.addEventListener('click', () => presetInput?.click());
 presetInput?.addEventListener('change', e => { if (e.target.files[0]) loadPresetFromFile(e.target.files[0]); });
 
 // --------------------------------------------------------------
-// EXPORTAR WAV
+// EXPORTAR WAV (usando js/export.js)
 // --------------------------------------------------------------
 const exportWavBtn = document.getElementById('btn-export-wav');
 if (exportWavBtn) {
   exportWavBtn.addEventListener('click', async () => {
     if (!audioBuffer) { alert('Load an audio file first'); return; }
     ensureCtx();
+
     exportWavBtn.disabled = true;
     exportWavBtn.textContent = '⟳ Rendering…';
-    const offCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
-    const offIn = offCtx.createGain();
-    const offOut = offCtx.createGain();
-    offOut.connect(offCtx.destination);
-    const domIds = [...document.getElementById('chain-area').querySelectorAll('.mod-thumb')].map(el => +el.dataset.id);
-    const ordered = domIds.map(id => modules.find(m => m.id === id)).filter(Boolean);
-    const active = globalBypass ? [] : ordered.filter(m => !m.bypassed);
-    const offGain = offCtx.createGain();
-    offGain.gain.value = Math.pow(10, outGainDb/20);
-    let lastOutput = offIn;
-    if (active.length > 0) {
-      const offMods = active.map(m => buildAudioNodes(m.type, m.params, offCtx));
-      offIn.connect(offMods[0].input);
-      for (let i = 0; i < offMods.length-1; i++) offMods[i].output.connect(offMods[i+1].input);
-      lastOutput = offMods[offMods.length-1].output;
+
+    try {
+      const chainArea = document.getElementById('chain-area');
+      const rendered = await renderOffline(audioBuffer, modules, globalBypass, outGainDb, chainArea);
+      downloadWav(rendered);
+    } catch (err) {
+      console.error(err);
+      alert('Error exporting audio');
     }
-    lastOutput.connect(offGain);
-    offGain.connect(offOut);
-    const src = offCtx.createBufferSource();
-    src.buffer = audioBuffer;
-    src.connect(offIn);
-    src.start(0);
-    const rendered = await offCtx.startRendering();
-    const nc = rendered.numberOfChannels, sr = rendered.sampleRate, len = rendered.length;
-    const ab = new ArrayBuffer(44 + len * nc * 2);
-    const view = new DataView(ab);
-    function writeString(o, s) { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); }
-    writeString(0, 'RIFF'); view.setUint32(4, 36 + len * nc * 2, true);
-    writeString(8, 'WAVE'); writeString(12, 'fmt ');
-    view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-    view.setUint16(22, nc, true); view.setUint32(24, sr, true);
-    view.setUint32(28, sr * nc * 2, true); view.setUint16(32, nc * 2, true);
-    view.setUint16(34, 16, true); writeString(36, 'data');
-    view.setUint32(40, len * nc * 2, true);
-    const channels = [];
-    for (let c = 0; c < nc; c++) channels.push(rendered.getChannelData(c));
-    let off = 44;
-    for (let i = 0; i < len; i++) {
-      for (let c = 0; c < nc; c++) {
-        const s = Math.max(-1, Math.min(1, channels[c][i]));
-        view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-        off += 2;
-      }
-    }
-    const blob = new Blob([ab], { type: 'audio/wav' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rack4master-export.wav';
-    a.click();
-    URL.revokeObjectURL(url);
+
     exportWavBtn.disabled = false;
     exportWavBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v7M3 5l3 3 3-3M1 11h10"/></svg> WAV';
   });
@@ -1138,46 +1031,10 @@ window.showModuleInfo = (moduleType) => {
 // --------------------------------------------------------------
 // INICIALIZACIÓN FINAL
 // --------------------------------------------------------------
-ensureCtx();
 initSidebarDrag();
 initChainDropZone();
 initMeters();
 updateAllTranslations();
-
-setTimeout(() => {
-  document.querySelectorAll('.slot .slot-btn').forEach(btn => {
-    if (!btn.hasAttribute('data-listener')) {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!audioBuffer) return;
-        const slot = btn.closest('.slot');
-        const type = slot?.dataset.type;
-        if (type) addModule(type);
-      });
-      btn.setAttribute('data-listener', 'true');
-    }
-  });
-  document.querySelectorAll('.slot-info-btn').forEach(btn => {
-    if (!btn.hasAttribute('data-info-listener')) {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const moduleType = btn.getAttribute('data-module');
-        if (moduleType && window.showModuleInfo) window.showModuleInfo(moduleType);
-      });
-      btn.setAttribute('data-info-listener', 'true');
-    }
-  });
-  document.querySelectorAll('.slot').forEach(slot => {
-    if (!slot.hasAttribute('data-dbl-listener')) {
-      slot.addEventListener('dblclick', () => {
-        if (!audioBuffer) return;
-        const type = slot.dataset.type;
-        if (type) addModule(type);
-      });
-      slot.setAttribute('data-dbl-listener', 'true');
-    }
-  });
-}, 50);
 
 updatePlayPauseIcon();
 refreshControlsState();

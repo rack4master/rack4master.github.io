@@ -1328,3 +1328,38 @@ body.controls-disabled .wf-empty span[data-i18n="ui.drop_audio"] {
     box-shadow: 0 0 0 rgba(255, 179, 0, 0);
   }
 }
+
+/* Deshabilita todos los controles excepto el botón de bypass */
+.module-disabled .knob-wrap,
+.module-disabled .tog-wrap,
+.module-disabled .btn-reset,
+.module-disabled .btn-info {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.module-disabled .mod-preset-select {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Botón de bypass: solo se atenúa, pero sigue siendo clickeable */
+.module-disabled .btn-byp {
+  opacity: 0.6;
+}
+
+/* En bypass global sí bloqueamos el botón de bypass */
+.module-disabled.global-bypassed .btn-byp {
+  pointer-events: none;
+}
+
+/* Lo mismo para el botón de bypass en la miniatura */
+.module-disabled .thumb-btn.byp-btn {
+  opacity: 0.6;
+}
+
+.module-disabled.global-bypassed .thumb-btn.byp-btn {
+  pointer-events: none;
+}

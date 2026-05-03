@@ -25,7 +25,6 @@ export const params = {
   outputGain: { label:'OUTPUT', min:-12, max:12, def:0, step:0.5, unit:'dB' }
 };
 
-// Definición de bandas para la UI (similar al EQ)
 export const bands = [
   {
     name: 'LOW',
@@ -41,42 +40,53 @@ export const bands = [
   }
 ];
 
-// Parámetros generales (fuera de las bandas)
 export const generalParams = ['lowMidFreq', 'midHighFreq', 'outputGain'];
 
 // ------------------------------------------------------------
-// Funciones de construcción de nodos y actualización
+// Filtros Linkwitz‑Riley de 2º orden (Q=0.5)
 // ------------------------------------------------------------
-function createCrossover(ctx, freq, type) {
-  const filter1 = ctx.createBiquadFilter();
-  const filter2 = ctx.createBiquadFilter();
-  filter1.type = type;
-  filter2.type = type;
-  filter1.frequency.value = freq;
-  filter2.frequency.value = freq;
-  filter1.Q.value = 0.707;
-  filter2.Q.value = 0.707;
-  filter1.connect(filter2);
-  return { filter1, filter2, output: filter2 };
+function createLR2Lowpass(ctx, freq) {
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = freq;
+  lp.Q.value = 0.5;
+  return lp;
 }
 
+function createLR2Highpass(ctx, freq) {
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = freq;
+  hp.Q.value = 0.5;
+  return hp;
+}
+
+// ------------------------------------------------------------
+// Construcción del grafo de audio
+// ------------------------------------------------------------
 export function buildNodes(ctx, params) {
   const input = ctx.createGain();
   const output = ctx.createGain();
 
-  const lowLowpass = createCrossover(ctx, params.lowMidFreq, 'lowpass');
-  const highHighpass = createCrossover(ctx, params.midHighFreq, 'highpass');
-  const midLowpass = createCrossover(ctx, params.midHighFreq, 'lowpass');
-  const midHighpass = createCrossover(ctx, params.lowMidFreq, 'highpass');
+  // Crossover Linkwitz-Riley de 3 vías
+  // Bajos: lowpass @ lowMidFreq
+  const lowLP = createLR2Lowpass(ctx, params.lowMidFreq);
 
-  input.connect(lowLowpass.filter1);
-  input.connect(midHighpass.filter1);
-  input.connect(highHighpass.filter1);
+  // Medios: highpass @ lowMidFreq → lowpass @ midHighFreq
+  const midHP = createLR2Highpass(ctx, params.lowMidFreq);
+  const midLP = createLR2Lowpass(ctx, params.midHighFreq);
 
-  midHighpass.filter1.connect(midHighpass.filter2);
-  midHighpass.filter2.connect(midLowpass.filter1);
-  midLowpass.filter1.connect(midLowpass.filter2);
+  // Agudos: highpass @ midHighFreq
+  const highHP = createLR2Highpass(ctx, params.midHighFreq);
 
+  // Conectamos la entrada a los tres caminos
+  input.connect(lowLP);               // Bajos
+  input.connect(midHP);               // Medios (primera etapa)
+  input.connect(highHP);              // Agudos
+
+  midHP.connect(midLP);               // Medios (segunda etapa)
+
+  // Compresores
   const compLow = ctx.createDynamicsCompressor();
   const compMid = ctx.createDynamicsCompressor();
   const compHigh = ctx.createDynamicsCompressor();
@@ -99,10 +109,11 @@ export function buildNodes(ctx, params) {
   compHigh.attack.value = params.highAttack / 1000;
   compHigh.release.value = params.highRelease / 1000;
 
-  lowLowpass.output.connect(compLow);
-  midLowpass.filter2.connect(compMid);
-  highHighpass.output.connect(compHigh);
+  lowLP.connect(compLow);
+  midLP.connect(compMid);
+  highHP.connect(compHigh);
 
+  // Makeup gains
   const lowMakeup = ctx.createGain();
   const midMakeup = ctx.createGain();
   const highMakeup = ctx.createGain();
@@ -114,6 +125,7 @@ export function buildNodes(ctx, params) {
   compMid.connect(midMakeup);
   compHigh.connect(highMakeup);
 
+  // Suma de las tres bandas
   const summer = ctx.createGain();
   lowMakeup.connect(summer);
   midMakeup.connect(summer);
@@ -126,27 +138,26 @@ export function buildNodes(ctx, params) {
 
   return {
     input, output,
-    lowLowpass, midLowpass, midHighpass, highHighpass,
+    lowLP, midHP, midLP, highHP,
     compLow, compMid, compHigh,
     lowMakeup, midMakeup, highMakeup,
     summer, outGain
   };
 }
 
+// ------------------------------------------------------------
+// Actualización de parámetros
+// ------------------------------------------------------------
 export function updateParam(nodes, key, value, currentTime, params) {
   const r = (node, val) => node.setTargetAtTime(val, currentTime, 0.008);
 
   if (key === 'lowMidFreq') {
-    r(nodes.lowLowpass.filter1.frequency, value);
-    r(nodes.lowLowpass.filter2.frequency, value);
-    r(nodes.midHighpass.filter1.frequency, value);
-    r(nodes.midHighpass.filter2.frequency, value);
+    r(nodes.lowLP.frequency, value);
+    r(nodes.midHP.frequency, value);
   }
   else if (key === 'midHighFreq') {
-    r(nodes.midLowpass.filter1.frequency, value);
-    r(nodes.midLowpass.filter2.frequency, value);
-    r(nodes.highHighpass.filter1.frequency, value);
-    r(nodes.highHighpass.filter2.frequency, value);
+    r(nodes.midLP.frequency, value);
+    r(nodes.highHP.frequency, value);
   }
   else if (key === 'lowThreshold') r(nodes.compLow.threshold, value);
   else if (key === 'lowRatio') r(nodes.compLow.ratio, value);
@@ -166,6 +177,7 @@ export function updateParam(nodes, key, value, currentTime, params) {
   else if (key === 'outputGain') r(nodes.outGain.gain, dbToGain(value));
 }
 
+// Los presets se mantienen exactamente igual (no dependen del crossover)
 export const presets = {
   'Default': {
     lowMidFreq: 200, midHighFreq: 2000,

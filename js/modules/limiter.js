@@ -5,8 +5,8 @@ export const label = 'LIMITADOR';
 export const color = '#ff3366';
 
 export const params = {
-  threshold: { label:'THRESH', min:-30, max:0, def:-1, step:0.1, unit:'dB' },
-  release: { label:'RELEASE', min:1, max:500, def:50, step:1, unit:'ms' },
+  threshold: { label:'THRESH', min:-30, max:0, def:-3, step:0.1, unit:'dB' },
+  release: { label:'RELEASE', min:1, max:500, def:100, step:1, unit:'ms' },
   makeup: { label:'MAKEUP', min:0, max:18, def:0, step:0.5, unit:'dB' }
 };
 
@@ -18,7 +18,7 @@ export function buildNodes(ctx, params) {
   comp.threshold.value = params.threshold;
   comp.ratio.value = 20;
   comp.knee.value = 0;
-  comp.attack.value = 0.0005;
+  comp.attack.value = 0.030; // 30 ms – mucho más musical
   comp.release.value = params.release / 1000;
   makeup.gain.value = dbToGain(params.makeup);
   input.connect(comp);
@@ -37,7 +37,7 @@ export function updateParam(nodes, key, value, currentTime) {
 }
 
 export const presets = {
-  'Default': { threshold: -1, release: 50, makeup: 0 },
+  'Default': { threshold: -3, release: 100, makeup: 0 },
   'Brickwall': { threshold: -0.5, release: 20, makeup: 0 },
   'Safe Limiter': { threshold: -3, release: 100, makeup: 2 },
   'Aggressive': { threshold: -0.2, release: 10, makeup: 3 },

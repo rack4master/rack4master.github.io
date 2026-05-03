@@ -99,14 +99,47 @@
 
     <div class="header-right" style="display: flex; align-items: center;">
       <span data-i18n="ui.presets" style="font-family: var(--fnt-display); font-size: 11px; letter-spacing: 2px; color: var(--tx3); margin-right: 6px;">PRESETS:</span>
+
       <select class="cat-select instrument-preset" id="instrument-select" style="height: 38px; margin-right: 14px;">
-        <option value="" disabled selected data-i18n="ui.inst.default">Instrumentos -></option>
-        <option value="full" data-i18n="ui.inst.full">Pista completa</option>
-        <option value="drums" data-i18n="ui.inst.drums">Batería (Drums)</option>
-        <option value="guitar" data-i18n="ui.inst.guitar">Guitarra / Bajo</option>
-        <option value="voices" data-i18n="ui.inst.voices">Voces</option>
-        <option value="keys" data-i18n="ui.inst.keys">Teclados</option>
-        <option value="empty" data-i18n="ui.inst.empty">Proyecto vacío</option>
+        <option value="" disabled selected data-i18n="ui.inst.default">Instruments -&gt;</option>
+        <optgroup data-i18n="ui.inst.group.guitars" label="GUITARS">
+          <option value="acoustic-guitar" data-i18n="ui.inst.acoustic_guitar">Acoustic Guitar</option>
+          <option value="classical-guitar" data-i18n="ui.inst.classical_guitar">Classical Guitar</option>
+          <option value="clean-guitar" data-i18n="ui.inst.clean_guitar">Electric Clean</option>
+          <option value="drive-guitar" data-i18n="ui.inst.drive_guitar">Drive</option>
+          <option value="fuzz-guitar" data-i18n="ui.inst.fuzz_guitar">Fuzz</option>
+          <option value="metal-guitar" data-i18n="ui.inst.metal_guitar">Metal</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.pianos" label="PIANOS / KEYS">
+          <option value="grand-piano" data-i18n="ui.inst.grand_piano">Grand Piano</option>
+          <option value="studio-piano" data-i18n="ui.inst.studio_piano">Studio Piano</option>
+          <option value="rhodes" data-i18n="ui.inst.rhodes">Rhodes / Wurlitzer</option>
+          <option value="synth" data-i18n="ui.inst.synth">Synthesizer</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.vocals" label="VOCALS">
+          <option value="vocal-main" data-i18n="ui.inst.vocal_main">Lead Vocal</option>
+          <option value="vocal-male" data-i18n="ui.inst.vocal_male">Male Solo</option>
+          <option value="vocal-female" data-i18n="ui.inst.vocal_female">Female Solo</option>
+          <option value="choir" data-i18n="ui.inst.choir">Choirs</option>
+          <option value="rap" data-i18n="ui.inst.rap">Rap / Spoken</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.drums" label="DRUMS / PERCUSSION">
+          <option value="acoustic-drums" data-i18n="ui.inst.acoustic_drums">Acoustic Drums</option>
+          <option value="electronic-drums" data-i18n="ui.inst.electronic_drums">Electronic Drums</option>
+          <option value="percussion" data-i18n="ui.inst.percussion">Percussion</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.orchestral" label="ORCHESTRAL">
+          <option value="strings" data-i18n="ui.inst.strings">Strings</option>
+          <option value="brass" data-i18n="ui.inst.brass">Brass</option>
+          <option value="woodwinds" data-i18n="ui.inst.woodwinds">Woodwinds</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.mix" label="MIX / MASTERING">
+          <option value="full-mix" data-i18n="ui.inst.full_mix">Full Mix</option>
+          <option value="master-bus" data-i18n="ui.inst.master_bus">Master Bus</option>
+          <option value="lofi" data-i18n="ui.inst.lofi">Lo‑Fi / Vintage</option>
+          <option value="bass-boost" data-i18n="ui.inst.bass_boost">Bass Enhancer</option>
+        </optgroup>
+        <option value="empty" data-i18n="ui.inst.empty">Empty project</option>
       </select>
 
       <button class="btn-preset" id="btn-save-preset" data-i18n="ui.btn.save" style="white-space: nowrap;">↓ GUARDAR</button>

@@ -3,10 +3,6 @@ import { loopEnabled, loopStart, loopEnd } from '../core/state.js';
 
 let wfImageData = null;
 
-export function getWFRect(canvas) {
-  return canvas.getBoundingClientRect();
-}
-
 export function paintWaveform(ctx, buffer, W, H) {
   ctx.clearRect(0, 0, W, H);
   const data = buffer.getChannelData(0);

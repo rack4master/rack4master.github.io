@@ -5,19 +5,17 @@ export const label = 'SOFT CLIPPER';
 export const color = '#ff8844';
 
 export const params = {
-  drive: { label:'DRIVE', min:1, max:20, def:5, step:0.5, unit:'x' },
-  mix: { label:'MIX', min:0, max:100, def:100, step:1, unit:'%' },
+  drive: { label:'DRIVE', min:1, max:20, def:2, step:0.5, unit:'x' },
+  mix: { label:'MIX', min:0, max:100, def:80, step:1, unit:'%' },
   output: { label:'OUTPUT', min:-18, max:6, def:0, step:0.5, unit:'dB' }
 };
 
-// Función para generar la curva del wave shaper (smooth tanh)
 function buildSoftClipCurve(drive) {
   const n = 2048;
   const curve = new Float32Array(n);
   const d = Math.max(0.1, drive);
   for (let i = 0; i < n; i++) {
-    const x = (i / (n - 1)) * 2 - 1;  // rango -1 a 1
-    // Curva suave: tanh(x * d) / tanh(d)
+    const x = (i / (n - 1)) * 2 - 1;
     curve[i] = Math.tanh(x * d) / Math.tanh(d);
   }
   return curve;
@@ -66,7 +64,7 @@ export function updateParam(nodes, key, value, currentTime, params) {
 }
 
 export const presets = {
-  'Default': { drive: 5, mix: 100, output: 0 },
+  'Default': { drive: 2, mix: 80, output: 0 },
   'Gentle': { drive: 2, mix: 80, output: 0 },
   'Aggressive': { drive: 12, mix: 100, output: 2 },
   'Tape Saturation': { drive: 3, mix: 70, output: 1 },
