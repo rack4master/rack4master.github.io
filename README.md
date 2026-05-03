@@ -10,6 +10,14 @@ AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
 (NOTE: No data is sent to any server – everything happens locally on your machine).
 
+## 🌟 Support the project
+
+If you find it useful, **help us grow** by giving a star on GitHub:
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/your-username/rack4master?style=social)](https://github.com/your-username/rack4master)
+
+You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR) to keep improving the tool.
+
 ## ✨ Features
 
 - **Load any audio** (WAV, MP3, etc.) via drag & drop or file picker.
