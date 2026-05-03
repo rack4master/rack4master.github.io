@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuda Interactiva — MASTER4RACK</title>
+    <title>Ayuda Interactiva — RACK4MASTER</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 40px auto;
             padding: 0 20px;
         }
@@ -186,6 +186,41 @@
             margin-bottom: 10px;
         }
 
+        .shortcuts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            background: var(--bg2);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed var(--brd);
+            padding: 8px 0;
+        }
+
+        kbd {
+            background: var(--bg3);
+            border: 1px solid var(--brd);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: var(--fnt-mono);
+            color: var(--amber);
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2);
+        }
+
+        .highlight {
+            color: var(--amber);
+            font-weight: bold;
+        }
+
         .footer {
             text-align: center;
             padding: 60px 20px;
@@ -194,25 +229,18 @@
             border-top: 1px solid var(--brd);
         }
 
-        kbd {
-            background: var(--bg3);
-            border: 1px solid var(--brd);
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: var(--fnt-mono);
-            color: var(--amber);
-        }
-
-        .highlight {
-            color: var(--amber);
-            font-weight: bold;
-        }
+        ul {
+    margin-bottom: 10px;
+}
+li {
+    margin-bottom: 5px;
+}
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-g">MASTER4RACK</div>
+        <div class="logo-g">RACK4MASTER</div>
         <div class="subtitle">Guía de Usuario e Instrucciones</div>
     </header>
 
@@ -222,176 +250,187 @@
             <button class="nav-btn" onclick="showSection('workflow')">FLUJO DE TRABAJO</button>
             <button class="nav-btn" onclick="showSection('modules')">MÓDULOS</button>
             <button class="nav-btn" onclick="showSection('presets')">PRESETS Y EXPORTACIÓN</button>
+            <button class="nav-btn" onclick="showSection('shortcuts')">ATAJOS DE TECLADO</button>
             <button class="nav-btn" onclick="showSection('interface')">INTERFAZ</button>
         </nav>
 
-        <!-- SECCIÓN: INTRODUCCIÓN -->
+        <!-- INTRODUCCIÓN -->
         <section id="intro" class="section active">
-            <h2>Bienvenido a MASTER4RACK</h2>
-            <p>MASTER4RACK es una potente estación de trabajo de masterización basada en navegador. Permite procesar tus pistas de audio utilizando una cadena de efectos modular de alta calidad, todo en tiempo real y de forma privada.</p>
+            <h2>Bienvenido a RACK4MASTER</h2>
+            <p>RACK4MASTER es una completa estación de trabajo de masterización que funciona completamente en tu navegador. Procesa tu audio con una cadena modular de efectos profesionales, todo en tiempo real y sin subir tus archivos a ningún servidor.</p>
             <div class="card">
-                <div class="card-title">¿Por qué MASTER4RACK?</div>
-                <p style="font-size: 0.95rem;">A diferencia de otros servicios, MASTER4RACK procesa el audio localmente en tu ordenador. Tus archivos nunca se suben a un servidor, garantizando total privacidad y una respuesta instantánea.</p>
+                <div class="card-title">¿Por qué RACK4MASTER?</div>
+                <p style="font-size: 0.95rem;">Privacidad total, respuesta instantánea y una interfaz inspirada en racks analógicos. Compatible con cualquier sistema operativo.</p>
             </div>
         </section>
 
-        <!-- SECCIÓN: FLUJO DE TRABAJO -->
+        <!-- SECCIÓN: FLUJO DE TRABAJO (MEJORADO) -->
         <section id="workflow" class="section">
             <h2>Cómo Masterizar tu Pista</h2>
-            
             <div class="step">
                 <div class="step-num">01</div>
                 <div class="step-content">
-                    <h3>Cargar Audio</h3>
-                    <p>Arrastra tu archivo <kbd>WAV</kbd> o <kbd>MP3</kbd> al área central o haz clic en "DROP AUDIO FILE HERE". Verás la forma de onda original una vez cargado.</p>
+                    <h3>Cargar el audio</h3>
+                    <p>Arrastra tu archivo de audio (WAV, MP3, etc.) al área superior donde dice <span class="highlight">"DROP AUDIO FILE HERE"</span> o haz clic en esa zona para seleccionarlo desde tu disco. Una vez cargado, verás la forma de onda y los controles de reproducción se activarán.</p>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-num">02</div>
                 <div class="step-content">
-                    <h3>Construir la Cadena</h3>
-                    <p>Explora los módulos en el panel derecho. Haz clic en el botón <span class="highlight">⊕</span> o arrastra el módulo directamente a la <span class="highlight">CADENA DE SEÑAL</span> en la parte inferior.</p>
+                    <h3>Construir la cadena de módulos</h3>
+                    <p>En el panel derecho (<strong>MÓDULOS DEL RACK</strong>) elige los procesadores que necesites. Puedes:</p>
+                    <ul style="margin-left: 20px; color: var(--tx2);">
+                        <li>Hacer clic en el botón <kbd>⊕</kbd> para añadir el módulo al final de la cadena.</li>
+                        <li>Arrastrar y soltar cualquier módulo directamente sobre la <strong>CADENA DE SEÑAL</strong> (parte inferior) en la posición que prefieras.</li>
+                    </ul>
+                    <p>Los módulos se procesan de izquierda a derecha, en el orden que aparecen en la cadena inferior.</p>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-num">03</div>
                 <div class="step-content">
-                    <h3>Ajustar Parámetros</h3>
-                    <p>Haz clic en cualquier módulo de tu cadena para abrir sus controles en el <span class="highlight">ÁREA DE EDICIÓN</span> central. Ajusta los knobs para esculpir tu sonido.</p>
+                    <h3>Ajustar los parámetros</h3>
+                    <p>Haz clic en cualquier miniatura de módulo dentro de la <strong>CADENA DE SEÑAL</strong> para abrir su panel de control en el área central. Allí podrás:</p>
+                    <ul style="margin-left: 20px; color: var(--tx2);">
+                        <li>Girar los knobs para modificar valores como Threshold, Ratio, Frecuencia, etc.</li>
+                        <li>Activar/desactivar el módulo con el botón <kbd>BYP</kbd> (el LED se pondrá rojo).</li>
+                        <li>Restablecer un parámetro haciendo <strong>doble clic</strong> sobre su knob.</li>
+                        <li>Usar los <strong>presets</strong> del módulo (si están disponibles) para comenzar rápidamente.</li>
+                    </ul>
                 </div>
             </div>
-
             <div class="step">
                 <div class="step-num">04</div>
                 <div class="step-content">
-                    <h3>Monitorizar y Exportar</h3>
-                    <p>Vigila los medidores de <span class="highlight">LUFS</span> y <span class="highlight">PEAK</span>. Cuando estés satisfecho, usa el botón <kbd>WAV</kbd> para descargar tu pista masterizada.</p>
+                    <h3>Monitorear y comparar</h3>
+                    <p>Utiliza los controles de reproducción (<span class="highlight">Play / Pause / Stop</span>) y el <strong>Loop</strong> para escuchar solo una sección. Observa los medidores de <strong>LUFS</strong> (sonoridad percibida) y <strong>PEAK</strong> (picos) en el panel derecho. Prueba el <strong>Bypass Global</strong> (icono de bucle cerca de OUTPUT) para comparar el audio procesado con el original al instante.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">05</div>
+                <div class="step-content">
+                    <h3>Exportar tu trabajo</h3>
+                    <p>Cuando estés satisfecho con el resultado, haz clic en el botón <kbd>WAV</kbd> de la barra superior. La aplicación renderizará toda la cadena sin pérdida de calidad y descargará un archivo WAV a 16 bits con el mismo número de canales de la fuente.</p>
+                    <p>También puedes guardar tu configuración completa (módulos, parámetros, loop y ganancia de salida) como un preset <kbd>.json</kbd> usando los botones <kbd>↓ GUARDAR</kbd> y <kbd>↑ CARGAR</kbd>.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECCIÓN: MÓDULOS -->
+        <!-- MÓDULOS COMPLETOS -->
         <section id="modules" class="section">
-            <h2>Módulos Disponibles</h2>
-            <p>Cada módulo ha sido diseñado para cumplir una función específica en la cadena de masterización:</p>
-            
+            <h2>Todos los Módulos del Rack</h2>
+            <p>Cada módulo está optimizado para una función específica en la cadena de masterización:</p>
             <div class="grid">
                 <!-- Dinámica -->
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #4488ff; color: #4488ff;"></div> PUERTA DE RUIDO</div>
-                    <p>Elimina el ruido de fondo en pasajes silenciosos.</p>
-                    <div class="card-desc">Thresh · Attack · Release</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #ffaa00; color: #ffaa00;"></div> COMPRESOR</div>
-                    <p>Controla el rango dinámico y aporta cohesión.</p>
-                    <div class="card-desc">Thresh · Ratio · Makeup</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #ff3366; color: #ff3366;"></div> LIMITADOR</div>
-                    <p>Asegura que el audio no sature y maximiza el volumen.</p>
-                    <div class="card-desc">Thresh · Release · Makeup</div>
-                </div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #4488ff;"></div> Puerta de Ruido</div><p>Elimina ruido de fondo en pasajes silenciosos.</p><div class="card-desc">Thresh · Attack · Release</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ffaa00;"></div> Compresor</div><p>Controla el rango dinámico y aporta pegada.</p><div class="card-desc">Thresh · Ratio · Makeup</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ff3366;"></div> Limitador</div><p>Evita saturación y maximiza el volumen.</p><div class="card-desc">Thresh · Release · Makeup</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ff33aa;"></div> Tremolo</div><p>Modulación de amplitud para efectos rítmicos.</p><div class="card-desc">Rate · Depth</div></div>
                 <!-- Filtros -->
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #00d4b0; color: #00d4b0;"></div> FILTRO HP/LP</div>
-                    <p>Limpia frecuencias innecesarias en graves y agudos.</p>
-                    <div class="card-desc">High-Pass · Low-Pass</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #33dd77; color: #33dd77;"></div> ECUALIZADOR 4-B</div>
-                    <p>Balance tonal preciso con cuatro bandas paramétricas.</p>
-                    <div class="card-desc">4× Freq · Gain · Q</div>
-                </div>
-                <!-- Espacial y Saturación -->
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #aa66ff; color: #aa66ff;"></div> REVERB</div>
-                    <p>Añade profundidad y espacio tridimensional.</p>
-                    <div class="card-desc">Size · Decay · Mix</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #ff6633; color: #ff6633;"></div> SATURADOR</div>
-                    <p>Aporta calidez analógica y armónicos a la señal.</p>
-                    <div class="card-desc">Drive · Tone · Output</div>
-                </div>
-                <div class="card">
-                    <div class="card-title"><div class="led" style="background: #ffcc33; color: #ffcc33;"></div> DELAY</div>
-                    <p>Efectos de eco y repetición rítmica.</p>
-                    <div class="card-desc">Time · Feedback · Mix</div>
-                </div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #00d4b0;"></div> Filtro HP/LP</div><p>Limpia frecuencias no deseadas en graves y agudos.</p><div class="card-desc">High-Pass · Low-Pass</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #cc44ff;"></div> De‑esser (clásico)</div><p>Reduce sibilancias mediante filtro notch.</p><div class="card-desc">Freq · BW · Depth</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #33dd77;"></div> Ecualizador 4-B</div><p>Balance tonal preciso con 4 bandas paramétricas.</p><div class="card-desc">Freq · Gain · Q x4</div></div>
+                <!-- Espacial -->
+                <div class="card"><div class="card-title"><div class="led" style="background: #3388ff;"></div> Chorus</div><p>Anchura y movimiento tipo coro.</p><div class="card-desc">Rate · Depth · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #aa33ff;"></div> Flanger</div><p>Barrido tipo jet.</p><div class="card-desc">Rate · Depth · Feedback</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #aa66ff;"></div> Reverb</div><p>Profundidad y espacio.</p><div class="card-desc">Size · Decay · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ffcc33;"></div> Delay</div><p>Eco y repeticiones.</p><div class="card-desc">Time · Feedback · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #44ccff;"></div> Widener</div><p>Ensancha la imagen estéreo.</p><div class="card-desc">Width · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ffaa44;"></div> Mid/Side</div><p>Procesa centro y laterales por separado.</p><div class="card-desc">Mid · Side · Mix</div></div>
+                <!-- Saturación -->
+                <div class="card"><div class="card-title"><div class="led" style="background: #ff6633;"></div> Saturador</div><p>Calidez analógica y armónicos.</p><div class="card-desc">Drive · Tone · Output</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #ff8844;"></div> Soft Clipper</div><p>Recorte suave de picos, aumento de volumen.</p><div class="card-desc">Drive · Mix · Output</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #33dd99;"></div> Exciter Armónico</div><p>Añade brillo y aire mediante armónicos pares.</p><div class="card-desc">Cutoff · Drive · Mix</div></div>
+                <!-- Avanzados -->
+                <div class="card"><div class="card-title"><div class="led" style="background: #dd66ff;"></div> De‑esser Pro</div><p>Reducción dinámica de sibilancias.</p><div class="card-desc">Freq · Thresh · Ratio · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background: #aa88ff;"></div> Compresor Multibanda</div><p>Compresión por bandas (bajos, medios, agudos).</p><div class="card-desc">3x Threshold · Ratio · Gain</div></div>
             </div>
         </section>
 
-        <!-- SECCIÓN: PRESETS -->
+        <!-- PRESETS Y EXPORTACIÓN -->
         <section id="presets" class="section">
             <h2>Gestión de Proyectos</h2>
             <div class="grid">
                 <div class="card">
                     <div class="card-title">Presets de Instrumentos</div>
-                    <p>Usa el selector superior para cargar configuraciones optimizadas para Pistas Completas, Baterías, Voces o Teclados.</p>
+                    <p>Usa el selector superior para cargar configuraciones optimizadas para Pistas Completas, Baterías, Voces, Guitarras o Teclados.</p>
                 </div>
                 <div class="card">
-                    <div class="card-title">Guardar/Cargar</div>
-                    <p>Puedes exportar tu configuración actual como un archivo <kbd>.json</kbd> para continuar tu trabajo más tarde.</p>
+                    <div class="card-title">Guardar / Cargar</div>
+                    <p>Exporta tu cadena completa + ajustes de loop + ganancia de salida a un archivo <kbd>.json</kbd>. Cárgalo después para retomar tu trabajo.</p>
                 </div>
                 <div class="card">
                     <div class="card-title">Exportación WAV</div>
-                    <p>El botón WAV renderiza tu audio procesado a la máxima calidad disponible en tu navegador.</p>
+                    <p>El botón <kbd>WAV</kbd> renderiza tu audio procesado usando un contexto offline, con la máxima calidad.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECCIÓN: INTERFAZ -->
+        <!-- ATAJOS DE TECLADO -->
+        <section id="shortcuts" class="section">
+            <h2>Atajos de Teclado</h2>
+            <p>Los siguientes atajos agilizan tu flujo de trabajo:</p>
+            <div class="shortcuts">
+                <div class="shortcut-item"><span>▶ Reproducir / Pausa</span><kbd>Espacio</kbd></div>
+                <div class="shortcut-item"><span>⏹ Detener (y rebobinar)</span><kbd>S</kbd></div>
+                <div class="shortcut-item"><span>🔄 Activar/Desactivar Loop</span><kbd>L</kbd></div>
+                <div class="shortcut-item"><span>◀ Retroceder 5 segundos</span><kbd>Flecha izquierda</kbd></div>
+                <div class="shortcut-item"><span>▶ Avanzar 5 segundos</span><kbd>Flecha derecha</kbd></div>
+                <div class="shortcut-item"><span>⏮ Ir al inicio de la pista</span><kbd>Inicio</kbd> o <kbd>Home</kbd></div>
+                <div class="shortcut-item"><span>⏭ Ir al final</span><kbd>Fin</kbd> o <kbd>End</kbd></div>
+                <div class="shortcut-item"><span>🔘 Bypass Global (toggle)</span><kbd>B</kbd></div>
+                <div class="shortcut-item"><span>🔄 Resetear picos de medidor</span><kbd>R</kbd></div>
+                <div class="shortcut-item"><span>🎛 Doble clic en knob</span><span>Resetear parámetro a valor por defecto</span></div>
+                <div class="shortcut-item"><span>🗑 Eliminar módulo seleccionado</span><kbd>Supr</kbd> o <kbd>Delete</kbd></div>
+            </div>
+            <p style="margin-top: 20px;"><em>Nota: Asegúrate de que el foco no esté dentro de un campo de texto para que funcionen los atajos.</em></p>
+        </section>
+
+        <!-- INTERFAZ -->
         <section id="interface" class="section">
             <h2>Controles de la Interfaz</h2>
             <div class="step">
                 <div class="step-content">
                     <h3>Transporte</h3>
-                    <p>Controla la reproducción con <span class="highlight">Play, Stop y Loop</span>. El display muestra el tiempo preciso de la pista.</p>
+                    <p>Botones <span class="highlight">Play, Stop y Loop</span>. El display muestra el tiempo actual y total. El loop se ajusta arrastrando los marcadores en el waveform.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-content">
                     <h3>Medidores de Salida</h3>
-                    <p>El panel inferior derecho muestra el nivel de salida en tiempo real. Usa el knob de <span class="highlight">GAIN</span> para el ajuste final antes de exportar.</p>
+                    <p>El panel inferior derecho muestra el nivel de salida en tiempo real. Usa el knob <span class="highlight">GAIN</span> para el ajuste final antes de exportar. Botón <kbd>RST PICO</kbd> para reiniciar los picos.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-content">
                     <h3>Bypass Global</h3>
-                    <p>El pequeño botón junto a "SALIDA" permite desactivar todos los efectos instantáneamente para comparar con el audio original.</p>
+                    <p>El pequeño botón junto a "SALIDA" (o tecla <kbd>B</kbd>) desactiva todos los efectos instantáneamente para comparar con el audio original.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-content">
+                    <h3>Ordenar Módulos</h3>
+                    <p>Arrastra las miniaturas mediante las asas <span class="highlight">⠿</span> para reordenar la cadena de procesamiento.</p>
                 </div>
             </div>
         </section>
     </div>
 
     <footer class="footer">
-        <p>© 2026 MASTER4RACK — Sistema de Ayuda Integrado</p>
-        <p>Diseñado para una experiencia de masterización profesional en la web.</p>
+        <p>© 2026 RACK4MASTER — Sistema de Ayuda Integrado</p>
+        <p>Procesa tu audio localmente, sin servidores, con total privacidad.</p>
     </footer>
 
     <script>
         function showSection(id) {
-            // Ocultar todas las secciones
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            // Desactivar todos los botones
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            // Mostrar la seleccionada
             document.getElementById(id).classList.add('active');
-            
-            // Activar el botón correspondiente
-            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => 
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b =>
                 b.getAttribute('onclick').includes(id)
             );
             if (activeBtn) activeBtn.classList.add('active');
-
-            // Scroll suave al inicio de la sección en móviles
-            if (window.innerWidth < 768) {
-                window.scrollTo({ top: 200, behavior: 'smooth' });
-            }
+            if (window.innerWidth < 768) window.scrollTo({ top: 200, behavior: 'smooth' });
         }
     </script>
 </body>

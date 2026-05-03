@@ -12,7 +12,6 @@
 </head>
 <body>
 
-  <!-- ═══════════════ HEADER ═══════════════════════════════ -->
   <header class="app-header">
     <div class="logo" style="flex-direction: row; align-items: center; gap: 12px;">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -24,13 +23,12 @@
       </svg>
       <div style="display: flex; flex-direction: column; line-height: 1;">
         <span class="logo-g">RACK4MASTER</span>
-        <span class="logo-c" data-i18n="ui.subtitle" style="font-size: 8px; letter-spacing: 2px; margin-top: 6px;">CADENA DE EFECTOS PARA MASTERING DE AUDIO</span>
+        <span class="logo-c" data-i18n="ui.subtitle" style="font-size: 8px; letter-spacing: 2px; margin-top: 6px;">EFFECTS CHAIN FOR AUDIO MASTERING</span>
       </div>
     </div>
 
     <div class="transport" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding-top: 8px; padding-bottom: 4px; gap: 6px;">
       <input type="file" id="file-input" accept="audio/*" hidden>
-
       <div style="display: flex; align-items: center; gap: 14px;">
         <div class="transport-btns">
           <button class="btn-tr btn-play" id="btn-play" disabled title="Play / Pause">
@@ -53,13 +51,12 @@
           <span id="time-tot">00:00.0</span>
         </div>
       </div>
-
-      <div class="track-info" id="track-name" data-i18n="ui.no_audio" style="font-size: 10px; letter-spacing: 1.5px; color: var(--tx3); text-align: center;">— No hay audio cargado —</div>
+      <div class="track-info" id="track-name" data-i18n="ui.no_audio" style="letter-spacing: 1.5px; color: var(--tx3); text-align: center;">— No hay audio cargado —</div>
     </div>
 
     <div class="header-right" style="display: flex; align-items: center;">
       <span data-i18n="ui.presets" style="font-family: var(--fnt-display); font-size: 11px; letter-spacing: 2px; color: var(--tx3); margin-right: 6px;">PRESETS:</span>
-      <select class="cat-select" id="instrument-select" style="height: 38px; margin-right: 14px;">
+      <select class="cat-select instrument-preset" id="instrument-select" style="height: 38px; margin-right: 14px;">
         <option value="" disabled selected data-i18n="ui.inst.default">Instrumentos -></option>
         <option value="full" data-i18n="ui.inst.full">Pista completa</option>
         <option value="drums" data-i18n="ui.inst.drums">Batería (Drums)</option>
@@ -88,52 +85,43 @@
           </svg>
         </button>
         <div id="dropdown-menu" class="dropdown-menu hidden">
-          <!-- Selector de Idioma -->
-                    <div class="dropdown-item" style="padding: 6px 16px;">
-                      <select id="lang-select" class="cat-select" style="width: 100%; border: none; padding: 5px 0; cursor: pointer;">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                        <option value="ca">Català</option>
-                      </select>
-                    </div>
+          <div class="dropdown-item" style="padding: 6px 16px;">
+            <select id="lang-select" class="cat-select" style="width: 100%; border: none; padding: 5px 0; cursor: pointer;">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="ca">Català</option>
+            </select>
+          </div>
           <div style="height: 1px; background: var(--brd); margin: 2px 0;"></div>
-          <!-- Opciones restantes -->
           <div class="dropdown-item" id="btn-help" data-i18n="menu.help">Ayuda</div>
+          <div class="dropdown-item" id="btn-shortcuts" data-i18n="menu.shortcuts">Atajos de teclado</div>
           <div class="dropdown-item" id="btn-theme" data-i18n="menu.theme">Modo Día/Noche</div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- ═══════════════ APP BODY ══════════════════════════════ -->
   <div class="app-body">
-
     <div class="workspace">
-      <!-- Waveform -->
-            <section class="wf-section">
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                <div class="sec-label" data-i18n="ui.source_audio" style="margin:0;">AUDIO ORIGINAL</div>
-                <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
-              </div>
-              <div class="wf-wrap" id="wf-wrap">
-                <canvas id="wf-canvas"></canvas>
+      <section class="wf-section">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div class="sec-label" data-i18n="ui.source_audio" style="margin:0;">AUDIO ORIGINAL</div>
+          <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
+        </div>
+        <div class="wf-wrap" id="wf-wrap">
+          <canvas id="wf-canvas"></canvas>
+          <div class="wf-empty" id="wf-empty" style="flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <span class="wf-icon">♬</span>
+              <span data-i18n="ui.drop_audio">DROP AUDIO FILE HERE &nbsp;·&nbsp; OR CLICK TO LOAD</span>
+            </div>
+            <span data-i18n="ui.audio_rights" style="font-family: var(--fnt-ui); font-size: 13px; letter-spacing: 0.5px; opacity: 0.55;">
+              You must own or have permission to use the audio you process.
+            </span>
+          </div>
+        </div>
+      </section>
 
-                <!-- Contenedor modificado para apilar en columna -->
-                <div class="wf-empty" id="wf-empty" style="flex-direction: column; gap: 6px;">
-                            <div style="display: flex; align-items: center; gap: 14px;">
-                              <span class="wf-icon">♬</span>
-                              <span data-i18n="ui.drop_audio">DROP AUDIO FILE HERE &nbsp;·&nbsp; OR CLICK TO LOAD</span>
-                            </div>
-                            <!-- Aviso legal con tamaño 11px y un poco más de opacidad -->
-                            <span data-i18n="ui.audio_rights" style="font-family: var(--fnt-ui); font-size: 13px; letter-spacing: 0.5px; opacity: 0.55;">
-                              You must own or have permission to use the audio you process.
-                            </span>
-                          </div>
-
-              </div>
-            </section>
-
-      <!-- Editor Area -->
       <section class="editor-section">
         <div class="editor-placeholder" id="editor-placeholder">
           <div style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;">🎛️</div>
@@ -142,10 +130,10 @@
         <div class="editor-area" id="editor-area"></div>
       </section>
 
-      <!-- Chain Area -->
       <section class="chain-section">
         <div class="chain-topbar">
           <div class="sec-label" data-i18n="ui.signal_chain" style="margin:0;">CADENA DE SEÑAL</div>
+          <button class="btn-clear" id="btn-clear-modules" data-i18n="ui.clear_modules">✕ CLEAR MODULES</button>
         </div>
         <div class="chain-scroll">
           <div class="chain-wrapper" style="position: relative;">
@@ -153,11 +141,16 @@
             <div class="chain-placeholder" id="chain-placeholder" data-i18n="ui.drag_here">← ARRASTRA MÓDULOS AQUÍ →</div>
             <div class="chain-area horizontal" id="chain-area"></div>
             <div class="flow-cap"><span class="flow-arrow">→</span> OUTPUT</div>
+            <button id="btn-global-bypass" class="btn-tr" style="position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; padding: 0; background: var(--green); border-color: var(--green); z-index: 10;" title="Global Bypass">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                <line x1="12" y1="2" x2="12" y2="12"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </section>
-
-    </div><!-- /workspace -->
+    </div>
 
     <aside class="sidebar">
       <div class="sidebar-top">
@@ -165,45 +158,191 @@
           <span class="sidebar-title" data-i18n="ui.rack_modules">MÓDULOS DEL RACK</span>
           <span class="sidebar-hint" data-i18n="ui.drag_or_add">arrastra o ⊕</span>
         </div>
-
-        <div class="cat-bar">
-          <select class="cat-select" id="cat-select">
+        <div class="cat-bar" style="display: flex; gap: 8px; align-items: center;">
+          <select class="cat-select" id="cat-select" style="width: 150px;">
             <option value="all" data-i18n="ui.cat.all">TODOS LOS MÓDULOS</option>
             <option value="dynamics" data-i18n="ui.cat.dyn">DINÁMICA</option>
             <option value="filters" data-i18n="ui.cat.fil">FILTROS</option>
             <option value="spatial" data-i18n="ui.cat.spa">ESPACIAL</option>
             <option value="saturation" data-i18n="ui.cat.sat">SATURACIÓN</option>
           </select>
+          <button id="sort-modules-btn" class="btn-tr" style="padding: 0 8px; height: 30px; font-size: 11px;" title="Ordenar alfabéticamente">A-Z</button>
         </div>
 
         <div class="sidebar-list" id="sidebar-list">
-          <div class="slot" data-type="gate" data-cat="dynamics"><div class="slot-led" style="--lc:#4488ff"></div><div class="slot-info"><div class="slot-name">PUERTA DE RUIDO</div><div class="slot-params">Thresh · Attack · Release</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="compressor" data-cat="dynamics"><div class="slot-led" style="--lc:#ffaa00"></div><div class="slot-info"><div class="slot-name">COMPRESOR</div><div class="slot-params">Thresh · Ratio · Makeup</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="limiter" data-cat="dynamics"><div class="slot-led" style="--lc:#ff3366"></div><div class="slot-info"><div class="slot-name">LIMITADOR</div><div class="slot-params">Thresh · Release · Makeup</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="tremolo" data-cat="dynamics"><div class="slot-led" style="--lc:#ff33aa"></div><div class="slot-info"><div class="slot-name">TREMOLO</div><div class="slot-params">Rate · Depth</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="filter" data-cat="filters"><div class="slot-led" style="--lc:#00d4b0"></div><div class="slot-info"><div class="slot-name">FILTRO HP/LP</div><div class="slot-params">High-Pass · Low-Pass</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="deesser" data-cat="filters"><div class="slot-led" style="--lc:#cc44ff"></div><div class="slot-info"><div class="slot-name">DE-ESSER</div><div class="slot-params">Freq · Bandwidth · Depth</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="eq" data-cat="filters"><div class="slot-led" style="--lc:#33dd77"></div><div class="slot-info"><div class="slot-name">ECUALIZADOR 4-B</div><div class="slot-params">4× Freq · Gain · Q</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="chorus" data-cat="spatial"><div class="slot-led" style="--lc:#3388ff"></div><div class="slot-info"><div class="slot-name">CHORUS</div><div class="slot-params">Rate · Depth · Mix</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="flanger" data-cat="spatial"><div class="slot-led" style="--lc:#aa33ff"></div><div class="slot-info"><div class="slot-name">FLANGER</div><div class="slot-params">Rate · Depth · Feedback</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="reverb" data-cat="spatial"><div class="slot-led" style="--lc:#aa66ff"></div><div class="slot-info"><div class="slot-name">REVERB</div><div class="slot-params">Size · Decay · Mix</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="delay" data-cat="spatial"><div class="slot-led" style="--lc:#ffcc33"></div><div class="slot-info"><div class="slot-name">DELAY</div><div class="slot-params">Time · Feedback · Mix</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="widener" data-cat="spatial"><div class="slot-led" style="--lc:#44ccff"></div><div class="slot-info"><div class="slot-name">WIDENER</div><div class="slot-params">Width · Mix</div></div><button class="slot-btn">⊕</button></div>
-          <div class="slot" data-type="saturator" data-cat="saturation"><div class="slot-led" style="--lc:#ff6633"></div><div class="slot-info"><div class="slot-name">SATURADOR</div><div class="slot-params">Drive · Tone · Output</div></div><button class="slot-btn">⊕</button></div>
+      <!-- Slots con botón ⊕ primero y luego ⓘ -->
+      <div class="slot" data-type="gate" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#4488ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">PUERTA DE RUIDO</div>
+          <div class="slot-params">Thresh · Attack · Release</div>
         </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="gate" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="compressor" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ffaa00"></div>
+        <div class="slot-info">
+          <div class="slot-name">COMPRESOR</div>
+          <div class="slot-params">Thresh · Ratio · Makeup</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="compressor" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="limiter" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ff3366"></div>
+        <div class="slot-info">
+          <div class="slot-name">LIMITADOR</div>
+          <div class="slot-params">Thresh · Release · Makeup</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="limiter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="tremolo" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ff33aa"></div>
+        <div class="slot-info">
+          <div class="slot-name">TREMOLO</div>
+          <div class="slot-params">Rate · Depth</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="tremolo" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="filter" data-cat="filters">
+        <div class="slot-led" style="--lc:#00d4b0"></div>
+        <div class="slot-info">
+          <div class="slot-name">FILTRO HP/LP</div>
+          <div class="slot-params">High-Pass · Low-Pass</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="filter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="deesser" data-cat="filters">
+        <div class="slot-led" style="--lc:#cc44ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">DE-ESSER</div>
+          <div class="slot-params">Freq · Bandwidth · Depth</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="deesser" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="eq" data-cat="filters">
+        <div class="slot-led" style="--lc:#33dd77"></div>
+        <div class="slot-info">
+          <div class="slot-name">ECUALIZADOR 4-B</div>
+          <div class="slot-params">4× Freq · Gain · Q</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="eq" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="chorus" data-cat="spatial">
+        <div class="slot-led" style="--lc:#3388ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">CHORUS</div>
+          <div class="slot-params">Rate · Depth · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="chorus" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="flanger" data-cat="spatial">
+        <div class="slot-led" style="--lc:#aa33ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">FLANGER</div>
+          <div class="slot-params">Rate · Depth · Feedback</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="flanger" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="reverb" data-cat="spatial">
+        <div class="slot-led" style="--lc:#aa66ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">REVERB</div>
+          <div class="slot-params">Size · Decay · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="reverb" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="delay" data-cat="spatial">
+        <div class="slot-led" style="--lc:#ffcc33"></div>
+        <div class="slot-info">
+          <div class="slot-name">DELAY</div>
+          <div class="slot-params">Time · Feedback · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="delay" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="widener" data-cat="spatial">
+        <div class="slot-led" style="--lc:#44ccff"></div>
+        <div class="slot-info">
+          <div class="slot-name">WIDENER</div>
+          <div class="slot-params">Width · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="widener" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="saturator" data-cat="saturation">
+        <div class="slot-led" style="--lc:#ff6633"></div>
+        <div class="slot-info">
+          <div class="slot-name">SATURADOR</div>
+          <div class="slot-params">Drive · Tone · Output</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="saturator" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="midside" data-cat="spatial">
+        <div class="slot-led" style="--lc:#ffaa44"></div>
+        <div class="slot-info">
+          <div class="slot-name">MID/SIDE</div>
+          <div class="slot-params">Mid · Side · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="midside" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="softclipper" data-cat="saturation">
+        <div class="slot-led" style="--lc:#ff8844"></div>
+        <div class="slot-info">
+          <div class="slot-name">SOFT CLIPPER</div>
+          <div class="slot-params">Drive · Mix · Output</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="softclipper" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="exciter" data-cat="spatial">
+        <div class="slot-led" style="--lc:#33dd99"></div>
+        <div class="slot-info">
+          <div class="slot-name">EXCITER</div>
+          <div class="slot-params">Cutoff · Drive · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="exciter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="deesserpro" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#dd66ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">DE-ESSER PRO</div>
+          <div class="slot-params">Freq · Thresh · Ratio · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="deesserpro" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="multiband" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#aa88ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">MULTIBAND COMP.</div>
+          <div class="slot-params">3 bandas · Threshold · Ratio</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="multiband" title="Información">ⓘ</button>
+      </div>
+    </div>
 
         <div class="sidebar-foot">
           <div data-i18n="ui.drag_to_bottom">Arrastra a la cadena inferior</div>
           <div data-i18n="ui.click_to_edit">Clic en miniatura para editar</div>
         </div>
       </div>
-
       <div class="sidebar-bot">
         <div class="meter-hd">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button id="btn-global-bypass" title="Bypass global de efectos"></button>
-            <span class="meter-title" data-i18n="ui.output">SALIDA</span>
-          </div>
+          <span class="meter-title" data-i18n="ui.output">SALIDA</span>
           <button class="btn-rst" id="btn-peak-rst" data-i18n="ui.btn.rst">RST PICO</button>
         </div>
         <div class="meter-body">
@@ -226,19 +365,26 @@
   </div>
 
   <footer class="app-footer">
-      <!-- Añadido el data-i18n aquí -->
-      <span class="copyright-text" data-i18n="foot.copyright">© 2026 Master Rack. All rights reserved.</span>
-      <span class="foot-sep">·</span>
-      <span class="copyright-text" style="color: var(--tx2);" data-i18n="foot.runs_locally">Runs locally in your browser. No data stored or tracked.</span>
-      <span class="foot-sep">·</span>
-      <a href="#" class="foot-link" data-modal="privacy" data-i18n="foot.privacy">Privacy</a>
-      <span class="foot-sep">·</span>
-      <a href="#" class="foot-link" data-modal="legal" data-i18n="foot.legal">Legal</a>
-      <span class="foot-sep">·</span>
-      <a href="#" class="foot-link" data-modal="terms" data-i18n="foot.terms">Terms</a>
-      <span class="foot-sep">·</span>
-      <a href="#" class="foot-link" data-modal="donate" data-i18n="foot.donate">Donate</a>
-    </footer>
+    <span class="copyright-text" data-i18n="foot.copyright">© 2026 Master Rack. All rights reserved.</span>
+    <span class="foot-sep">·</span>
+    <span class="copyright-text" style="color: var(--tx2);" data-i18n="foot.runs_locally">Runs locally in your browser. No data stored or tracked.</span>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="privacy" data-i18n="foot.privacy">Privacy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="legal" data-i18n="foot.legal">Legal</a>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="terms" data-i18n="foot.terms">Terms</a>
+    <span class="foot-sep">·</span>
+
+    <form action="https://www.paypal.com/donate" method="post" target="_blank" style="display: inline-block; margin: 0; vertical-align: middle;">
+      <input type="hidden" name="business" value="73KKE6DVSJ8WY" />
+      <input type="hidden" name="no_recurring" value="1" />
+      <input type="hidden" name="currency_code" value="EUR" />
+      <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" style="display: inline-block; vertical-align: middle; height: auto; width: auto;" />
+      <img alt="" border="0" src="https://www.paypal.com/en_ES/i/scr/pixel.gif" width="1" height="1" />
+    </form>
+
+  </footer>
 
   <div class="modal-overlay hidden" id="modal-overlay">
     <div class="modal-window">
@@ -250,8 +396,7 @@
     </div>
   </div>
 
-  <!-- IMPORTANTE: El diccionario debe cargar antes que la lógica de la app -->
   <script src="lang.js"></script>
-  <script src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
