@@ -96,12 +96,13 @@ For questions, suggestions or bug reports, please contact:
 
 If you find RACK4MASTER useful, you can support the project with a donation:
 
-<form action="https://www.paypal.com/donate" method="post" target="_blank">
-  <input type="hidden" name="business" value="73KKE6DVSJ8WY" />
-  <input type="hidden" name="no_recurring" value="1" />
-  <input type="hidden" name="currency_code" value="EUR" />
-  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal" alt="Donate with PayPal" />
-</form>
+    <form action="https://www.paypal.com/donate" method="post" target="_blank" style="display: inline-block; margin: 0; vertical-align: middle;">
+      <input type="hidden" name="business" value="73KKE6DVSJ8WY" />
+      <input type="hidden" name="no_recurring" value="1" />
+      <input type="hidden" name="currency_code" value="EUR" />
+      <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" style="display: inline-block; vertical-align: middle; height: auto; width: auto;" />
+      <img alt="" border="0" src="https://www.paypal.com/en_ES/i/scr/pixel.gif" width="1" height="1" />
+    </form>
 
 ---
 
