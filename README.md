@@ -104,7 +104,8 @@ If you find RACK4MASTER useful, you can support the project with a donation:
 
 ## ⚠️ License & Legal
 
-Rack4Master is a free, open source software under a MIT Licence. This software is provided "as is", without warranty of any kind.  
+Rack4Master is a free, open source software under a MIT Licence. 
+This software is provided "as is", without warranty of any kind.  
 You must own or have permission to use the audio files you process.  
 All rights reserved. © 2026
 
