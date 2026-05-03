@@ -5,7 +5,8 @@ It allows you to load any audio file, build a custom chain of processors (dynami
 
 AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
-![Rack4master screenshot](pic.png)
+<img src="pic.png" alt="Rack4master screenshot" width="600" />
+
 
 (No data is sent to any server – everything happens locally on your machine).
 
