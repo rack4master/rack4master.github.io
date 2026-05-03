@@ -16,7 +16,7 @@ If you find it useful, **help us grow** by giving a star on GitHub:
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/your-username/rack4master?style=social)](https://github.com/your-username/rack4master)
 
-You can also [![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR)to keep improving the tool.
+You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR) to keep improving the tool.
 
 ## ✨ Features
 
@@ -101,14 +101,6 @@ For questions, suggestions or bug reports, please contact:
 
 ---
 
-## 💰 Donate
-
-If you find RACK4MASTER useful, you can support the project with a donation:
-
-[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR)
-
----
-
 ## ⚠️ License & Legal
 
 Rack4Master is a free, open source software under a MIT Licence. 
@@ -122,3 +114,11 @@ All rights reserved. © 2026
 
 - Inspired by classic analog mastering consoles and modular racks.
 - Thanks to the Web Audio API community for making real‑time audio in the browser possible.
+
+  ---
+
+## 💰 Donate
+
+If you find RACK4MASTER useful, you can support the project with a donation:
+
+[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR)
