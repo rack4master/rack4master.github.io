@@ -82,7 +82,7 @@ No data is sent to any server – everything happens locally on your machine.
 
 For questions, suggestions or bug reports, please contact:
 
-**Email:** [rackmaster@proton.me] *(replace with your actual email)*
+**Email:** [rackmaster@proton.me
 
 ---
 
