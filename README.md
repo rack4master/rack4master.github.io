@@ -26,32 +26,6 @@ No data is sent to any server – everything happens locally on your machine.
 
 ---
 
-## 🗂 Project Structure
-RACK4MASTER/
-├── index.html # Main application layout
-├── style.css # All styles (dark/light themes, knobs, meters, etc.)
-├── lang.js # Translations for UI and modules
-├── js/
-│ ├── main.js # Core logic: playback, module management, routing, UI events
-│ ├── utils.js # Helper functions (clamp, dB conversion, time formatting)
-│ ├── core/
-│ │ ├── audio.js # Audio context, node building, parameter updates, rewire chain
-│ │ └── state.js # Global state variables and setters
-│ ├── ui/
-│ │ ├── thumb.js # Builds module thumbnails for the chain area
-│ │ ├── card.js # Builds detailed editor cards for each module
-│ │ ├── knobs.js # Knob and toggle UI creation & display updates
-│ │ ├── meters.js # VU meter animation and LUFS/peak simulation
-│ │ └── waveform.js # Waveform drawing and overlay (loop, seek)
-│ └── modules/
-│ └── defs.js # Definitions of all modules: parameters, presets, build/update functions
-├── help.html # Optional help window (opened from menu)
-└── README.md # This file
-
-
-
----
-
 ## 🚀 How to Use
 
 1. **Load an audio file**  
