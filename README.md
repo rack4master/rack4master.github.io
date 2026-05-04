@@ -12,7 +12,7 @@ AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
 ## 🌟 Support the project
 
-If you find it useful, **help us grow** by giving a star on GitHub:
+If you find RACK4MASTER useful, **help us grow** by giving a star on GitHub:
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/rack4master?style=social)](https://github.com/rack4master)
 
