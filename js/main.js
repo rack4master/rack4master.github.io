@@ -9,13 +9,17 @@ import { initMeters, startVU, stopVU, resetMeters } from './ui/meters.js';
 import { setKnobDisplay } from './ui/knobs.js';
 import { renderOffline, downloadWav } from './export.js';
 import { INSTRUMENT_PRESETS } from './presets.js';
+import { initSpectrum, startSpectrumLoop, stopSpectrumLoop, resizeSpectrum, setSpectrumMode } from './ui/spectrum.js';
+import { analyzeAndRecommend } from './assistant.js';
 import {
   modules, nextId, activeModuleId, globalBypass,
   loopEnabled, loopStart, loopEnd, audioBuffer, isPlaying, startedAt, pauseOffset,
   setActiveModuleId, setGlobalBypass, setLoopEnabled, setLoopStart, setLoopEnd,
   setAudioBuffer, setIsPlaying, setStartedAt, setPauseOffset,
   addModuleToState, removeModuleFromState, updateModuleBypass,
-  setModuleOrder
+  setModuleOrder,
+  slotA, slotB, activeSlot,
+  setSlotA, setSlotB, setActiveSlot
 } from './core/state.js';
 
 // --------------------------------------------------------------
@@ -36,14 +40,10 @@ function updateAllTranslations() {
     const key = el.dataset.i18n;
     const translation = window.getTranslation(key);
     if (!translation) return;
-
-    // Para optgroup usamos el atributo label, NO innerHTML (así no borramos los option)
     if (el.tagName === 'OPTGROUP') {
       el.label = translation;
       return;
     }
-
-    // Para el resto de elementos, actualizamos el contenido
     el.innerHTML = translation;
   });
 
@@ -87,7 +87,6 @@ function updateModuleControlsState(mod) {
 // --------------------------------------------------------------
 // RESET MODULE PARAMS
 // --------------------------------------------------------------
-
 function resetModuleParams(mod) {
   if (mod.bypassed || globalBypass) return;
 
@@ -130,7 +129,6 @@ function resetModuleParams(mod) {
     }
   });
 
-  // Resetear el selector de presets a "Presets"
   if (mod.presetSelect) {
     mod.presetSelect.value = '';
   }
@@ -230,6 +228,109 @@ function removeModule(id) {
   rewireChain();
 }
 
+// --- Función Solo (para miniaturas y tarjetas) ---
+let soloedModuleId = null;
+let preSoloBypass = new Map();
+
+function toggleSolo(id) {
+  const mod = modules.find(m => m.id === id);
+  if (!mod) return;
+
+  if (soloedModuleId === id) {
+    preSoloBypass.forEach((wasBypassed, moduleId) => {
+      const m = modules.find(m => m.id === moduleId);
+      if (m) {
+        updateModuleBypass(moduleId, wasBypassed);
+        if (m.thumbEl) {
+          m.thumbEl.classList.toggle('bypassed', wasBypassed);
+          const btn = m.thumbEl.querySelector('.byp-btn');
+          if (btn) { btn.textContent = wasBypassed ? 'ON' : 'BYP'; btn.classList.toggle('bypassed', wasBypassed); }
+        }
+        if (m.cardEl) {
+          m.cardEl.classList.toggle('bypassed', wasBypassed);
+          const btn = m.cardEl.querySelector('.btn-byp');
+          if (btn) { btn.textContent = wasBypassed ? 'ON' : 'BYP'; btn.classList.toggle('bypassed', wasBypassed); }
+          const led = m.cardEl.querySelector('.mod-led');
+          if (led) led.classList.toggle('off', wasBypassed);
+        }
+        updateModuleControlsState(m);
+      }
+    });
+    soloedModuleId = null;
+    preSoloBypass.clear();
+
+    modules.forEach(m => {
+      if (m.thumbEl) {
+        const soloBtnThumb = m.thumbEl.querySelector('.solo-btn');
+        if (soloBtnThumb) soloBtnThumb.classList.remove('active');
+      }
+      if (m.cardEl) {
+        const soloBtnCard = m.cardEl.querySelector('.btn-solo');
+        if (soloBtnCard) soloBtnCard.classList.remove('active');
+      }
+    });
+    rewireChain();
+    return;
+  }
+
+  preSoloBypass.clear();
+  modules.forEach(m => {
+    preSoloBypass.set(m.id, m.bypassed);
+  });
+
+  modules.forEach(m => {
+    if (m.id === id) {
+      if (m.bypassed) {
+        updateModuleBypass(m.id, false);
+        if (m.thumbEl) {
+          m.thumbEl.classList.remove('bypassed');
+          const btn = m.thumbEl.querySelector('.byp-btn');
+          if (btn) { btn.textContent = 'BYP'; btn.classList.remove('bypassed'); }
+        }
+        if (m.cardEl) {
+          m.cardEl.classList.remove('bypassed');
+          const btn = m.cardEl.querySelector('.btn-byp');
+          if (btn) { btn.textContent = 'BYP'; btn.classList.remove('bypassed'); }
+          const led = m.cardEl.querySelector('.mod-led');
+          if (led) led.classList.remove('off');
+        }
+      }
+    } else {
+      updateModuleBypass(m.id, true);
+      if (m.thumbEl) {
+        m.thumbEl.classList.add('bypassed');
+        const btn = m.thumbEl.querySelector('.byp-btn');
+        if (btn) { btn.textContent = 'ON'; btn.classList.add('bypassed'); }
+      }
+      if (m.cardEl) {
+        m.cardEl.classList.add('bypassed');
+        const btn = m.cardEl.querySelector('.btn-byp');
+        if (btn) { btn.textContent = 'ON'; btn.classList.add('bypassed'); }
+        const led = m.cardEl.querySelector('.mod-led');
+        if (led) led.classList.add('off');
+      }
+      updateModuleControlsState(m);
+    }
+  });
+
+  soloedModuleId = id;
+
+  modules.forEach(m => {
+    if (m.thumbEl) {
+      const soloBtnThumb = m.thumbEl.querySelector('.solo-btn');
+      if (soloBtnThumb) soloBtnThumb.classList.toggle('active', m.id === id);
+    }
+    if (m.cardEl) {
+      const soloBtnCard = m.cardEl.querySelector('.btn-solo');
+      if (soloBtnCard) soloBtnCard.classList.toggle('active', m.id === id);
+    }
+  });
+  updateModuleControlsState(mod);
+  rewireChain();
+}
+
+window.toggleSolo = toggleSolo;
+
 window.addModule = addModule;
 window.toggleBypass = toggleBypass;
 window.setActiveModule = setActiveModule;
@@ -277,6 +378,9 @@ function initSidebarDrag() {
     slot.addEventListener('dblclick', handleSlotDblClick);
     slot.setAttribute('data-dbl-listener', 'true');
   });
+
+  sortModulesList('asc');
+  document.getElementById('sort-modules-btn').textContent = 'Z‑A';
 }
 
 function initChainDropZone() {
@@ -337,6 +441,16 @@ function refreshControlsState() {
   const resetPeakBtnEl = document.getElementById('btn-peak-rst');
   const clearModulesBtn = document.getElementById('btn-clear-modules');
 
+  const btnSlotA = document.getElementById('btn-slot-a');
+  const btnSlotB = document.getElementById('btn-slot-b');
+  const btnToggleSpectrum = document.getElementById('btn-toggle-spectrum');
+  const catSelect = document.getElementById('cat-select');
+  const sortBtn = document.getElementById('sort-modules-btn');
+
+  const btnToggleWaveform = document.getElementById('btn-toggle-waveform');
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  const btnToggleChain = document.getElementById('btn-toggle-chain');
+
   if (playBtn) playBtn.disabled = !hasAudio;
   if (stopBtn) stopBtn.disabled = !hasAudio;
   if (loopBtn) loopBtn.disabled = !hasAudio;
@@ -347,6 +461,16 @@ function refreshControlsState() {
   if (globalBypassBtnEl) globalBypassBtnEl.disabled = !hasAudio;
   if (resetPeakBtnEl) resetPeakBtnEl.disabled = !hasAudio;
   if (clearModulesBtn) clearModulesBtn.disabled = false;
+
+  if (btnSlotA) btnSlotA.disabled = !hasAudio;
+  if (btnSlotB) btnSlotB.disabled = !hasAudio;
+  if (btnToggleSpectrum) btnToggleSpectrum.disabled = !hasAudio;
+  if (catSelect) catSelect.disabled = !hasAudio;
+  if (sortBtn) sortBtn.disabled = !hasAudio;
+
+  if (btnToggleWaveform) btnToggleWaveform.disabled = !hasAudio;
+  if (btnToggleSidebar) btnToggleSidebar.disabled = !hasAudio;
+  if (btnToggleChain) btnToggleChain.disabled = !hasAudio;
 }
 
 // --------------------------------------------------------------
@@ -393,6 +517,39 @@ async function loadAudioFile(file) {
   resetMeters();
   drawWaveformFull(wfCanvas, audioBuffer);
   wfEmpty.classList.add('hidden');
+
+  if (typeof spectrumVisible !== 'undefined' && spectrumVisible) {
+    const specCanvas = document.getElementById('spectrum-canvas');
+    if (specCanvas) {
+      const ctx = specCanvas.getContext('2d');
+      ctx.clearRect(0, 0, specCanvas.width, specCanvas.height);
+    }
+    stopSpectrumLoop();
+    resizeSpectrum();
+    startSpectrumLoop();
+  }
+  const resultsList = document.getElementById('spectrum-results-list');
+  if (resultsList) {
+    resultsList.innerHTML = '<div class="spectrum-results-empty">Run analysis to see recommendations</div>';
+  }
+  const applyBtn = document.getElementById('btn-apply-recommendations');
+  if (applyBtn) applyBtn.classList.add('hidden');
+  const copyBtn = document.getElementById('btn-copy-results');
+  if (copyBtn) copyBtn.classList.add('hidden');
+  if (typeof lastRecommendations !== 'undefined') lastRecommendations = [];
+
+  soloedModuleId = null;
+  preSoloBypass.clear();
+  modules.forEach(m => {
+    if (m.thumbEl) {
+      const soloBtn = m.thumbEl.querySelector('.solo-btn');
+      if (soloBtn) soloBtn.classList.remove('active');
+    }
+    if (m.cardEl) {
+      const soloBtn = m.cardEl.querySelector('.btn-solo');
+      if (soloBtn) soloBtn.classList.remove('active');
+    }
+  });
   updatePlayPauseIcon();
   refreshControlsState();
 }
@@ -409,6 +566,7 @@ function stopPlayback(resetOffset = true) {
   }
   if (rafId) cancelAnimationFrame(rafId);
   resetMeters();
+  stopSpectrumLoop();
 }
 
 function startPlayback(offset = 0) {
@@ -431,6 +589,7 @@ function startPlayback(offset = 0) {
   if (rafId) cancelAnimationFrame(rafId);
   startTimeDisplay();
   startVU();
+  if (spectrumVisible) startSpectrumLoop();
   sourceNode.onended = () => { if (isPlaying && !loopEnabled) stopPlayback(true); };
 }
 
@@ -443,6 +602,7 @@ function pausePlayback() {
   updatePlayPauseIcon();
   if (rafId) cancelAnimationFrame(rafId);
   stopVU();
+  stopSpectrumLoop();
 }
 
 function startTimeDisplay() {
@@ -549,21 +709,27 @@ if (wfCanvas) {
 }
 
 // --------------------------------------------------------------
-// OUTPUT GAIN KNOB
+// OUTPUT GAIN KNOB (bug solucionado: doble clic vuelve exactamente a 0 dB)
 // --------------------------------------------------------------
 let outGainDb = 0;
-function applyOutGain(db) {
-  if (!audioBuffer) return;
-  outGainDb = Math.min(6, Math.max(-18, db));
-  if (window.audioCtx && window.audioCtx.outputGainNode) {
-    window.audioCtx.outputGainNode.gain.setTargetAtTime(Math.pow(10, outGainDb/20), window.audioCtx.currentTime, 0.008);
-  }
-  const norm = (outGainDb + 18) / 24;
+function renderOutGainVisual() {
+  const norm  = (outGainDb + 12) / 24;   // 0 dB → 0.5 → angle = 0° exacto
   const angle = -135 + norm * 270;
   const ind = document.querySelector('#out-gain-knob .knob-ind');
   if (ind) ind.style.transform = `rotate(${angle}deg)`;
   const val = document.getElementById('out-gain-val');
   if (val) val.textContent = (outGainDb >= 0 ? '+' : '') + outGainDb.toFixed(1) + ' dB';
+}
+function applyOutGain(db) {
+  outGainDb = Math.round(db * 2) / 2;
+  outGainDb = Math.min(12, Math.max(-12, outGainDb));
+  renderOutGainVisual();
+  if (!audioBuffer) return;
+  if (window.audioCtx && window.audioCtx.outputGainNode) {
+    window.audioCtx.outputGainNode.gain.setTargetAtTime(
+      Math.pow(10, outGainDb / 20), window.audioCtx.currentTime, 0.008
+    );
+  }
 }
 const outKnob = document.getElementById('out-gain-knob');
 if (outKnob) {
@@ -591,10 +757,9 @@ if (outKnob) {
     applyOutGain(outGainDb + (e.deltaY > 0 ? -0.5 : 0.5));
   });
   outKnob.addEventListener('dblclick', () => {
-    if (!audioBuffer) return;
     applyOutGain(0);
   });
-  applyOutGain(0);
+  renderOutGainVisual();   // posición correcta en el arranque, sin audio cargado
 }
 
 // --------------------------------------------------------------
@@ -641,6 +806,50 @@ if (clearModulesBtn) {
       [...modules].forEach(m => removeModule(m.id));
       const instrumentSelect = document.getElementById('instrument-select');
       if (instrumentSelect) instrumentSelect.value = '';
+
+      setSlotA(null);
+      setSlotB(null);
+      if (activeSlot !== 'A') {
+        setActiveSlot('A');
+        updateABButtons();
+      }
+
+      if (typeof spectrumVisible !== 'undefined' && spectrumVisible) {
+        stopSpectrumLoop();
+        const specCanvas = document.getElementById('spectrum-canvas');
+        if (specCanvas) {
+          const ctx = specCanvas.getContext('2d');
+          ctx.clearRect(0, 0, specCanvas.width, specCanvas.height);
+        }
+        spectrumPanel.classList.add('hidden');
+        btnToggleSpectrum.classList.remove('active');
+        btnToggleSpectrum.innerHTML = '▼ ' + (window.getTranslation('ui.spectrum_label') || 'SPECTRUM');
+        spectrumVisible = false;
+      }
+      if (typeof spectrumResultsList !== 'undefined') {
+        spectrumResultsList.innerHTML = '<div class="spectrum-results-empty">Run analysis to see recommendations</div>';
+      }
+      if (typeof btnApplyRecommendations !== 'undefined') {
+        btnApplyRecommendations.classList.add('hidden');
+      }
+      const copyBtn = document.getElementById('btn-copy-results');
+      if (copyBtn) copyBtn.classList.add('hidden');
+      if (typeof lastRecommendations !== 'undefined') {
+        lastRecommendations = [];
+      }
+
+      soloedModuleId = null;
+      preSoloBypass.clear();
+      modules.forEach(m => {
+        if (m.thumbEl) {
+          const soloBtn = m.thumbEl.querySelector('.solo-btn');
+          if (soloBtn) soloBtn.classList.remove('active');
+        }
+        if (m.cardEl) {
+          const soloBtn = m.cardEl.querySelector('.btn-solo');
+          if (soloBtn) soloBtn.classList.remove('active');
+        }
+      });
     }
   });
 }
@@ -656,6 +865,11 @@ if (clearAllBtn) {
       resetMeters();
       applyOutGain(0);
       [...modules].forEach(m => removeModule(m.id));
+
+      setSlotA(null);
+      setSlotB(null);
+      setActiveSlot('A');
+
       setAudioBuffer(null);
       setLoopEnabled(false);
       if (btnLoop) btnLoop.classList.remove('is-loop');
@@ -669,7 +883,54 @@ if (clearAllBtn) {
       if (timeTotEl) timeTotEl.textContent = '00:00.0';
       const instrumentSelect = document.getElementById('instrument-select');
       if (instrumentSelect) instrumentSelect.value = '';
+
+      if (typeof spectrumVisible !== 'undefined' && spectrumVisible) {
+        stopSpectrumLoop();
+        const specCanvas = document.getElementById('spectrum-canvas');
+        if (specCanvas) {
+          const ctx = specCanvas.getContext('2d');
+          ctx.clearRect(0, 0, specCanvas.width, specCanvas.height);
+        }
+        spectrumPanel.classList.add('hidden');
+        btnToggleSpectrum.classList.remove('active');
+        btnToggleSpectrum.innerHTML = '▼ ' + (window.getTranslation('ui.spectrum_label') || 'SPECTRUM');
+        spectrumVisible = false;
+      }
+      if (typeof spectrumResultsList !== 'undefined') {
+        spectrumResultsList.innerHTML = '<div class="spectrum-results-empty">Run analysis to see recommendations</div>';
+      }
+      if (typeof btnApplyRecommendations !== 'undefined') {
+        btnApplyRecommendations.classList.add('hidden');
+      }
+      const copyBtn = document.getElementById('btn-copy-results');
+      if (copyBtn) copyBtn.classList.add('hidden');
+      if (typeof lastRecommendations !== 'undefined') {
+        lastRecommendations = [];
+      }
+
+      soloedModuleId = null;
+      preSoloBypass.clear();
+      modules.forEach(m => {
+        if (m.thumbEl) {
+          const soloBtn = m.thumbEl.querySelector('.solo-btn');
+          if (soloBtn) soloBtn.classList.remove('active');
+        }
+        if (m.cardEl) {
+          const soloBtn = m.cardEl.querySelector('.btn-solo');
+          if (soloBtn) soloBtn.classList.remove('active');
+        }
+      });
+
+      updateABButtons();
       refreshControlsState();
+
+      // Si el panel de la onda estaba colapsado, abrirlo para poder cargar otra pista
+      const wfSection = document.querySelector('.wf-section');
+      if (wfSection && wfSection.classList.contains('collapsed')) {
+        wfSection.classList.remove('collapsed');
+        const btnWf = document.getElementById('btn-toggle-waveform');
+        if (btnWf) { btnWf.classList.remove('active'); btnWf.innerHTML = '▲'; }
+      }
     }
   });
 }
@@ -696,7 +957,81 @@ if (resetPeakBtn) {
 }
 
 // --------------------------------------------------------------
-// PRESETS DE INSTRUMENTOS (usando js/presets.js)
+// FUNCIONES A/B
+// --------------------------------------------------------------
+function getCurrentSlotData() {
+  return {
+    modules: modules.map(m => ({
+      type: m.type,
+      params: { ...m.params },
+      bypassed: m.bypassed
+    })),
+    outputGainDb: outGainDb,
+    loop: {
+      enabled: loopEnabled,
+      start: loopStart,
+      end: loopEnd
+    }
+  };
+}
+
+function restoreSlotData(data) {
+  [...modules].forEach(m => removeModule(m.id));
+  (data.modules || []).forEach(item => addModule(item.type, item.params || {}, item.bypassed));
+  if (data.outputGainDb !== undefined) applyOutGain(data.outputGainDb);
+  if (data.loop) {
+    setLoopEnabled(!!data.loop.enabled);
+    setLoopStart(data.loop.start || 0);
+    setLoopEnd(data.loop.end || 1);
+    if (btnLoop) btnLoop.classList.toggle('is-loop', loopEnabled);
+  }
+  if (modules.length > 0) setActiveModule(modules[0].id);
+}
+
+function switchToSlot(slotName) {
+  if (activeSlot === slotName) return;
+
+  if (activeSlot === 'A') setSlotA(getCurrentSlotData());
+  else setSlotB(getCurrentSlotData());
+
+  const targetData = slotName === 'A' ? slotA : slotB;
+
+  if (!targetData || !targetData.modules || targetData.modules.length === 0) {
+    const otherSlot = slotName === 'A' ? slotB : slotA;
+    if (otherSlot && otherSlot.modules && otherSlot.modules.length > 0) {
+      if (confirm(`Slot ${slotName} is empty. Copy modules from slot ${slotName === 'A' ? 'B' : 'A'}?`)) {
+        const copyData = JSON.parse(JSON.stringify(otherSlot));
+        if (slotName === 'A') setSlotA(copyData);
+        else setSlotB(copyData);
+        restoreSlotData(copyData);
+        setActiveSlot(slotName);
+        updateABButtons();
+        return;
+      }
+    }
+    [...modules].forEach(m => removeModule(m.id));
+    setActiveSlot(slotName);
+    updateABButtons();
+    return;
+  }
+
+  setActiveSlot(slotName);
+  restoreSlotData(targetData);
+  updateABButtons();
+}
+
+function updateABButtons() {
+  const btnA = document.getElementById('btn-slot-a');
+  const btnB = document.getElementById('btn-slot-b');
+  if (btnA) btnA.classList.toggle('active', activeSlot === 'A');
+  if (btnB) btnB.classList.toggle('active', activeSlot === 'B');
+}
+
+document.getElementById('btn-slot-a')?.addEventListener('click', () => switchToSlot('A'));
+document.getElementById('btn-slot-b')?.addEventListener('click', () => switchToSlot('B'));
+
+// --------------------------------------------------------------
+// PRESETS DE INSTRUMENTOS
 // --------------------------------------------------------------
 const instrumentSelect = document.getElementById('instrument-select');
 if (instrumentSelect) {
@@ -724,7 +1059,13 @@ if (instrumentSelect) {
     }
 
     [...modules].forEach(m => removeModule(m.id));
-    chain.forEach(type => addModule(type));
+    chain.forEach(item => {
+      if (typeof item === 'string') {
+        addModule(item);
+      } else if (item && item.type) {
+        addModule(item.type, item.params || {});
+      }
+    });
 
     if (modules.length > 0) {
       setActiveModule(modules[0].id);
@@ -741,17 +1082,27 @@ const presetInput = document.getElementById('preset-input');
 
 function savePreset() {
   if (!audioBuffer) return;
+
+  if (activeSlot === 'A') setSlotA(getCurrentSlotData());
+  else setSlotB(getCurrentSlotData());
+
   const data = {
-    version: '1.2',
-    loop: { enabled: loopEnabled, start: loopStart, end: loopEnd },
-    outputGainDb: outGainDb,
-    modules: modules.map(m => ({ type: m.type, params: { ...m.params }, bypassed: m.bypassed }))
+    version: '2.0',
+    slotA: slotA ? { ...slotA } : null,
+    slotB: slotB ? { ...slotB } : null,
+    activeSlot: activeSlot
   };
+
+  const defaultName = 'rack4master-preset';
+  const customName = prompt('Preset name:', defaultName);
+  if (!customName) return;
+
+  const fileName = customName.endsWith('.json') ? customName : customName + '.json';
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'rack4master-preset.json';
+  a.download = fileName;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -761,16 +1112,28 @@ function loadPresetFromFile(file) {
   reader.onload = (ev) => {
     try {
       const data = JSON.parse(ev.target.result);
-      [...modules].forEach(m => removeModule(m.id));
-      if (data.loop) {
-        setLoopEnabled(!!data.loop.enabled);
-        setLoopStart(data.loop.start || 0);
-        setLoopEnd(data.loop.end || 1);
-        if (btnLoop) btnLoop.classList.toggle('is-loop', loopEnabled);
+      if (data.version === '1.2' || !data.slotA) {
+        [...modules].forEach(m => removeModule(m.id));
+        if (data.loop) {
+          setLoopEnabled(!!data.loop.enabled);
+          setLoopStart(data.loop.start || 0);
+          setLoopEnd(data.loop.end || 1);
+          if (btnLoop) btnLoop.classList.toggle('is-loop', loopEnabled);
+        }
+        if (data.outputGainDb !== undefined) applyOutGain(data.outputGainDb);
+        (data.modules || []).forEach(item => addModule(item.type, item.params || {}, item.bypassed));
+        if (modules.length > 0) setActiveModule(modules[0].id);
+        setSlotA(getCurrentSlotData());
+        setSlotB(null);
+        setActiveSlot('A');
+      } else {
+        if (data.slotA) setSlotA(data.slotA);
+        if (data.slotB) setSlotB(data.slotB);
+        setActiveSlot(data.activeSlot || 'A');
+        const slotData = data.activeSlot === 'B' ? data.slotB : data.slotA;
+        if (slotData) restoreSlotData(slotData);
       }
-      if (data.outputGainDb !== undefined) applyOutGain(data.outputGainDb);
-      (data.modules || []).forEach(item => addModule(item.type, item.params || {}, item.bypassed));
-      if (modules.length > 0) setActiveModule(modules[0].id);
+      updateABButtons();
       refreshControlsState();
     } catch (err) { alert('Invalid preset'); }
     presetInput.value = '';
@@ -783,17 +1146,15 @@ loadPresetBtnElem?.addEventListener('click', () => presetInput?.click());
 presetInput?.addEventListener('change', e => { if (e.target.files[0]) loadPresetFromFile(e.target.files[0]); });
 
 // --------------------------------------------------------------
-// EXPORTAR WAV (usando js/export.js)
+// EXPORTAR WAV
 // --------------------------------------------------------------
 const exportWavBtn = document.getElementById('btn-export-wav');
 if (exportWavBtn) {
   exportWavBtn.addEventListener('click', async () => {
     if (!audioBuffer) { alert('Load an audio file first'); return; }
     ensureCtx();
-
     exportWavBtn.disabled = true;
     exportWavBtn.textContent = '⟳ Rendering…';
-
     try {
       const chainArea = document.getElementById('chain-area');
       const rendered = await renderOffline(audioBuffer, modules, globalBypass, outGainDb, chainArea);
@@ -802,7 +1163,6 @@ if (exportWavBtn) {
       console.error(err);
       alert('Error exporting audio');
     }
-
     exportWavBtn.disabled = false;
     exportWavBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v7M3 5l3 3 3-3M1 11h10"/></svg> WAV';
   });
@@ -907,7 +1267,7 @@ if (modalOverlay && footLinks.length) {
 }
 
 // --------------------------------------------------------------
-// Modal de atajos de teclado (rediseñado)
+// Modal de atajos de teclado
 // --------------------------------------------------------------
 const shortcutsBtn = document.getElementById('btn-shortcuts');
 if (shortcutsBtn && modalOverlay && modalTitle && modalBody) {
@@ -975,58 +1335,197 @@ if (shortcutsBtn && modalOverlay && modalTitle && modalBody) {
 // --------------------------------------------------------------
 // DESCRIPCIONES DE MÓDULOS
 // --------------------------------------------------------------
-window.moduleDescriptions = {
-  gate: 'Puerta de Ruido: Atenúa el sonido cuando la señal cae por debajo de un umbral. Útil para limpiar ruido de fondo en pistas de voz, guitarra o batería. En mastering se usa ocasionalmente para eliminar ruido residual.',
-  compressor: 'Compresor: Reduce el rango dinámico, haciendo las partes suaves más audibles y controlando los picos. Ideal para bajo, voz, batería y para dar pegada a la mezcla. En mastering se usa para glue y control general.',
-  limiter: 'Limitador: Evita que la señal supere un nivel máximo (techo), permitiendo subir la sonoridad sin distorsión. Esencial en mastering para alcanzar niveles comerciales.',
-  tremolo: 'Tremolo: Modula la amplitud de la señal a una velocidad determinada. Añade movimiento y ritmo. Útil en guitarras, pads o para efectos creativos, no es común en mastering.',
-  filter: 'Filtro HP/LP: Elimina frecuencias bajas (high‑pass) o altas (low‑pass). Útil para limpiar subgraves incontrolados (HP) o suavizar agudos excesivos (LP).',
-  deesser: 'De-esser (clásico): Reduce sibilancias (eses) mediante un filtro notch estático. Adecuado para correcciones rápidas pero menos preciso que el De-esser Pro.',
-  eq: 'Ecualizador 4 bandas: Ajusta frecuencias bajas, medios y agudos con control de ganancia, frecuencia y Q. Herramienta fundamental para dar forma al tono.',
-  chorus: 'Chorus: Crea una sensación de anchura y movimiento simulando varias voces ligeramente desafinadas. Común en guitarras, sintetizadores y coros, pero no típico en mastering.',
-  flanger: 'Flanger: Genera un efecto de barrido tipo “jet” al mezclar la señal con una copia retardada modulada. Más usado en producción que en mastering.',
-  reverb: 'Reverberación: Añade sensación de espacio. En mastering se usa con sutileza para dar profundidad o glue, aunque no es muy común.',
-  delay: 'Delay: Repite la señal con un retardo. En mastering se usa ocasionalmente para efectos creativos, pero normalmente se aplica en mezcla.',
-  widener: 'Widener: Ensancha la imagen estéreo al añadir un pequeño retardo a un canal. Útil para dar amplitud sin perder compatibilidad mono.',
-  saturator: 'Saturator: Añade armónicos y calidez mediante distorsión suave. Ideal para dar carácter a buses o pistas individuales. En mastering se usa con cuidado.',
-  midside: 'Mid/Side: Procesa por separado el centro (Mid) y los laterales (Side). Perfecto para ensanchar la imagen estéreo, centrar bajos o realzar los laterales sin afectar el centro.',
-  softclipper: 'Soft Clipper: Recorta los picos de forma suave, aumentando la sonoridad sin distorsión agresiva. Útil antes del limitador para ganar nivel sin que el limitador trabaje en exceso.',
-  exciter: 'Exciter Armónico: Añade armónicos de orden par para dar brillo y claridad sin ecualización agresiva. Muy útil para voces apagadas, pistas con falta de aire, o para dar vida a mezclas oscuras.',
-  deesserpro: 'De-esser Pro: Reduce sibilancias dinámicamente mediante compresión por sidechain. Más preciso y transparente que el de-esser clásico. Indispensable en voces y también útil en pistas con platos de batería.',
-  multiband: 'Compresor Multibanda: Divide el espectro en tres bandas (bajos, medios, agudos) y comprime cada una independientemente. Perfecto para controlar problemas de frecuencia sin afectar al resto, como domar graves excesivos o pulir agudos sin perder pegada.'
-};
+// Las descripciones de modulos se leen del sistema de traduccion (lang.js)
+// para soportar EN / ES / CA. Ya no son strings fijos en castellano.
+window.moduleDescriptions = new Proxy({}, {
+  get: function(target, moduleType) {
+    var key = 'info.' + moduleType + '.desc';
+    var val = window.getTranslation ? window.getTranslation(key) : null;
+    return val || null;
+  }
+});
 
 window.showModuleInfo = (moduleType) => {
-  const desc = window.moduleDescriptions[moduleType];
+  var title = (window.getTranslation ? window.getTranslation('info.' + moduleType + '.title') : null)
+              || moduleType;
+  var desc  = (window.getTranslation ? window.getTranslation('info.' + moduleType + '.desc') : null)
+              || '';
   if (!desc) return;
-  let title = '';
-  switch (moduleType) {
-    case 'gate': title = 'Puerta de Ruido (Noise Gate)'; break;
-    case 'compressor': title = 'Compresor'; break;
-    case 'limiter': title = 'Limitador'; break;
-    case 'tremolo': title = 'Tremolo'; break;
-    case 'filter': title = 'Filtro HP/LP'; break;
-    case 'deesser': title = 'De-esser (clásico)'; break;
-    case 'eq': title = 'Ecualizador 4 bandas'; break;
-    case 'chorus': title = 'Chorus'; break;
-    case 'flanger': title = 'Flanger'; break;
-    case 'reverb': title = 'Reverberación'; break;
-    case 'delay': title = 'Delay'; break;
-    case 'widener': title = 'Widener'; break;
-    case 'saturator': title = 'Saturador'; break;
-    case 'midside': title = 'Mid/Side'; break;
-    case 'softclipper': title = 'Soft Clipper'; break;
-    case 'exciter': title = 'Exciter Armónico'; break;
-    case 'deesserpro': title = 'De-esser Pro'; break;
-    case 'multiband': title = 'Compresor Multibanda'; break;
-    default: title = moduleType;
-  }
   if (modalOverlay && modalTitle && modalBody) {
     modalTitle.textContent = title;
-    modalBody.innerHTML = `<p>${desc}</p>`;
+    modalBody.innerHTML = '<p>' + desc + '</p>';
     modalOverlay.classList.remove('hidden');
   }
 };
+
+// --------------------------------------------------------------
+// ESPECTRO Y ASISTENTE (panel desplegable)
+// --------------------------------------------------------------
+const btnToggleSpectrum = document.getElementById('btn-toggle-spectrum');
+const btnSpectrumMode = document.getElementById('btn-spectrum-mode');
+const spectrumPanel = document.getElementById('spectrum-panel');
+const spectrumCanvas = document.getElementById('spectrum-canvas');
+const btnAnalyze = document.getElementById('btn-analyze');
+const spectrumResultsList = document.getElementById('spectrum-results-list');
+const btnApplyRecommendations = document.getElementById('btn-apply-recommendations');
+
+let spectrumVisible = false;
+let lastRecommendations = [];
+let spectrumMode = 'bars';
+
+initSpectrum(spectrumCanvas);
+
+btnToggleSpectrum.addEventListener('click', () => {
+  spectrumVisible = !spectrumVisible;
+  const label = window.getTranslation('ui.spectrum_label') || 'SPECTRUM';
+  if (spectrumVisible) {
+    spectrumPanel.classList.remove('hidden');
+    btnToggleSpectrum.classList.add('active');
+    btnToggleSpectrum.innerHTML = '▲ ' + label;
+    resizeSpectrum();
+    startSpectrumLoop();
+  } else {
+    spectrumPanel.classList.add('hidden');
+    btnToggleSpectrum.classList.remove('active');
+    btnToggleSpectrum.innerHTML = '▼ ' + label;
+    stopSpectrumLoop();
+  }
+});
+
+btnSpectrumMode.addEventListener('click', () => {
+  if (spectrumMode === 'bars') {
+    spectrumMode = 'line';
+    btnSpectrumMode.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 7h3l2-4 2 8 2-4h3"/></svg>`;
+    btnSpectrumMode.classList.add('active');
+  } else {
+    spectrumMode = 'bars';
+    btnSpectrumMode.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="3" height="9" rx="0.5"/><rect x="5.5" y="1" width="3" height="12" rx="0.5"/><rect x="10" y="6" width="3" height="7" rx="0.5"/></svg>`;
+    btnSpectrumMode.classList.remove('active');
+  }
+  setSpectrumMode(spectrumMode);
+});
+
+btnAnalyze.addEventListener('click', async () => {
+  if (!audioBuffer) {
+    alert('Load an audio file first');
+    return;
+  }
+  btnAnalyze.disabled = true;
+  btnAnalyze.textContent = '⟳ Analizando…';
+  try {
+    const recommendations = await analyzeAndRecommend(audioBuffer);
+    lastRecommendations = recommendations;
+    const copyBtn = document.getElementById('btn-copy-results');
+
+    if (recommendations.length === 0) {
+      spectrumResultsList.innerHTML = '<div class="spectrum-results-empty">✅ No significant problems detected.</div>';
+      btnApplyRecommendations.classList.add('hidden');
+      if (copyBtn) copyBtn.classList.add('hidden');
+    } else {
+      let html = '';
+      recommendations.forEach(r => html += `<div class="spectrum-result-item">• ${r.reason}</div>`);
+      spectrumResultsList.innerHTML = html;
+      btnApplyRecommendations.classList.remove('hidden');
+      if (copyBtn) {
+        copyBtn.classList.remove('hidden');
+        copyBtn.onclick = () => {
+          const lines = recommendations.map(r => '• ' + r.reason);
+          navigator.clipboard.writeText(lines.join('\n')).then(() => {
+            copyBtn.textContent = '✓ Copiado';
+            setTimeout(() => { copyBtn.textContent = '⎘ Copiar'; }, 1800);
+          });
+        };
+      }
+    }
+    if (!spectrumVisible) btnToggleSpectrum.click();
+  } catch (err) {
+    console.error(err);
+    spectrumResultsList.innerHTML = '<div class="spectrum-results-empty">❌ Error during analysis</div>';
+    btnApplyRecommendations.classList.add('hidden');
+    const copyBtn = document.getElementById('btn-copy-results');
+    if (copyBtn) copyBtn.classList.add('hidden');
+  } finally {
+    btnAnalyze.disabled = false;
+    btnAnalyze.textContent = '🔍 ANALYZE & RECOMMEND';
+  }
+});
+
+btnApplyRecommendations.addEventListener('click', () => {
+  if (lastRecommendations.length === 0) return;
+  const old = [...modules];
+  old.forEach(m => removeModule(m.id));
+  lastRecommendations.forEach(r => addModule(r.type, r.params, false));
+  spectrumResultsList.innerHTML = '<div class="spectrum-results-empty">✅ Chain applied! Tweak to taste.</div>';
+  btnApplyRecommendations.classList.add('hidden');
+  const copyBtn = document.getElementById('btn-copy-results');
+  if (copyBtn) copyBtn.classList.add('hidden');
+  lastRecommendations = [];
+});
+
+// --------------------------------------------------------------
+// TOGGLES DE COLAPSAR PANELES (WAVEFORM / SIDEBAR / CHAIN)
+// --------------------------------------------------------------
+const btnToggleWaveform = document.getElementById('btn-toggle-waveform');
+const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+const btnToggleChain = document.getElementById('btn-toggle-chain');
+
+if (btnToggleWaveform) {
+  let spectrumWasOpen = false;  // recuerda si el espectro estaba abierto al colapsar
+  btnToggleWaveform.addEventListener('click', () => {
+    const wfSection = document.querySelector('.wf-section');
+    if (!wfSection) return;
+    const isCollapsed = wfSection.classList.toggle('collapsed');
+    btnToggleWaveform.classList.toggle('active', isCollapsed);
+    btnToggleWaveform.innerHTML = isCollapsed ? '▼' : '▲';
+
+    if (isCollapsed) {
+      // Guardar estado y cerrar espectro
+      spectrumWasOpen = spectrumVisible;
+      if (spectrumVisible) {
+        stopSpectrumLoop();
+        spectrumPanel.classList.add('hidden');
+        btnToggleSpectrum.classList.remove('active');
+        const label = window.getTranslation('ui.spectrum_label') || 'SPECTRUM';
+        btnToggleSpectrum.innerHTML = '▼ ' + label;
+        spectrumVisible = false;
+      }
+    } else {
+      // Al reabrir la onda, restaurar espectro si estaba abierto
+      if (spectrumWasOpen) {
+        spectrumPanel.classList.remove('hidden');
+        btnToggleSpectrum.classList.add('active');
+        const label = window.getTranslation('ui.spectrum_label') || 'SPECTRUM';
+        btnToggleSpectrum.innerHTML = '▲ ' + label;
+        spectrumVisible = true;
+        resizeSpectrum();
+        if (audioBuffer) startSpectrumLoop();
+      }
+      spectrumWasOpen = false;
+    }
+  });
+}
+
+if (btnToggleSidebar) {
+  btnToggleSidebar.addEventListener('click', () => {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('collapsed');
+      btnToggleSidebar.classList.toggle('active');
+      btnToggleSidebar.innerHTML = sidebar.classList.contains('collapsed') ? '◀' : '▶';
+    }
+  });
+}
+
+if (btnToggleChain) {
+  btnToggleChain.addEventListener('click', () => {
+    const chainSection = document.querySelector('.chain-section');
+    if (chainSection) {
+      chainSection.classList.toggle('collapsed');
+      btnToggleChain.classList.toggle('active');
+      btnToggleChain.innerHTML = chainSection.classList.contains('collapsed') ? '▲' : '▼';
+    }
+  });
+}
 
 // --------------------------------------------------------------
 // INICIALIZACIÓN FINAL
@@ -1037,6 +1536,7 @@ initMeters();
 updateAllTranslations();
 
 updatePlayPauseIcon();
+updateABButtons();
 refreshControlsState();
 
 window.addEventListener('keydown', (e) => {

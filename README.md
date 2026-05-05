@@ -34,9 +34,10 @@ You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DV
 - **Modular signal chain** – drag & drop modules from the sidebar to the chain area, reorder them, bypass individually or globally.
 - **Full parameter control** via analog‑style knobs and toggles, with real‑time audio processing.
 - **Module presets** (where available) for quick setup.
-- **30+ instrument & genre presets** – optimized chains for acoustic/classical/electric guitars, pianos, Rhodes, synths, male/female vocals, choirs, rap, acoustic/studio/vintage/jazz/electronic drums, percussion, strings, brass, woodwinds, and mixes by genre (Rock, Blues, Country, Folk, Jazz, Urban, Latino, Pop, Ballad, Mastering).
+- **35+ instrument & genre presets** – optimized chains for acoustic/classical/electric guitars, pianos, Rhodes, synths, male/female vocals, choirs, rap, acoustic/studio/vintage/jazz/electronic drums, percussion, strings, brass, woodwinds, and mixes by genre (Rock, Blues, Country, Folk, Jazz, Urban, Latino, Pop, Ballad, Mastering).
 - **Preset system** – save / load your entire chain (including both A/B slots) + loop settings + output gain.
 - **Export** the processed audio as a 16‑bit WAV file (offline rendering, respects the whole chain and bypass states).
+- **Professional dithering** – Triangular PDF dithering applied on export to 16-bit WAV, eliminating quantization distortion.
 - **VU meters** with peak hold and LUFS approximation.
 - **Global bypass** to compare processed vs. raw audio instantly.
 - **Dark / Light theme** and multilingual UI (English, Spanish, Catalan) – no external dependencies for translations.

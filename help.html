@@ -230,11 +230,11 @@
         }
 
         ul {
-    margin-bottom: 10px;
-}
-li {
-    margin-bottom: 5px;
-}
+            margin-bottom: 10px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -248,10 +248,14 @@ li {
         <nav class="help-nav">
             <button class="nav-btn active" onclick="showSection('intro')">INICIO</button>
             <button class="nav-btn" onclick="showSection('workflow')">FLUJO DE TRABAJO</button>
+            <button class="nav-btn" onclick="showSection('ab')">SLOTS A/B</button>
+            <button class="nav-btn" onclick="showSection('solo')">MODO SOLO</button>
+            <button class="nav-btn" onclick="showSection('spectrum')">ANÁLISIS ESPECTRAL</button>
             <button class="nav-btn" onclick="showSection('modules')">MÓDULOS</button>
             <button class="nav-btn" onclick="showSection('presets')">PRESETS Y EXPORTACIÓN</button>
             <button class="nav-btn" onclick="showSection('shortcuts')">ATAJOS DE TECLADO</button>
             <button class="nav-btn" onclick="showSection('interface')">INTERFAZ</button>
+            <button class="nav-btn" onclick="showSection('dithering')">DITHERING</button>
         </nav>
 
         <!-- INTRODUCCIÓN -->
@@ -264,7 +268,7 @@ li {
             </div>
         </section>
 
-        <!-- SECCIÓN: FLUJO DE TRABAJO (MEJORADO) -->
+        <!-- SECCIÓN: FLUJO DE TRABAJO -->
         <section id="workflow" class="section">
             <h2>Cómo Masterizar tu Pista</h2>
             <div class="step">
@@ -303,15 +307,103 @@ li {
                 <div class="step-num">04</div>
                 <div class="step-content">
                     <h3>Monitorear y comparar</h3>
-                    <p>Utiliza los controles de reproducción (<span class="highlight">Play / Pause / Stop</span>) y el <strong>Loop</strong> para escuchar solo una sección. Observa los medidores de <strong>LUFS</strong> (sonoridad percibida) y <strong>PEAK</strong> (picos) en el panel derecho. Prueba el <strong>Bypass Global</strong> (icono de bucle cerca de OUTPUT) para comparar el audio procesado con el original al instante.</p>
+                    <p>Utiliza los controles de reproducción (<span class="highlight">Play / Pause / Stop</span>) y el <strong>Loop</strong> para escuchar solo una sección. Observa los medidores de <strong>LUFS</strong> (sonoridad percibida) y <strong>PEAK</strong> (picos) en el panel derecho. Prueba el <strong>Bypass Global</strong> para comparar el audio procesado con el original al instante.</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-num">05</div>
                 <div class="step-content">
                     <h3>Exportar tu trabajo</h3>
-                    <p>Cuando estés satisfecho con el resultado, haz clic en el botón <kbd>WAV</kbd> de la barra superior. La aplicación renderizará toda la cadena sin pérdida de calidad y descargará un archivo WAV a 16 bits con el mismo número de canales de la fuente.</p>
-                    <p>También puedes guardar tu configuración completa (módulos, parámetros, loop y ganancia de salida) como un preset <kbd>.json</kbd> usando los botones <kbd>↓ GUARDAR</kbd> y <kbd>↑ CARGAR</kbd>.</p>
+                    <p>Cuando estés satisfecho con el resultado, haz clic en el botón <kbd>WAV</kbd> de la barra superior. La aplicación renderizará toda la cadena sin pérdida de calidad y descargará un archivo WAV a 16 bits.</p>
+                    <p>También puedes guardar tu configuración completa como un preset <kbd>.json</kbd> usando los botones <kbd>↓ GUARDAR</kbd> y <kbd>↑ CARGAR</kbd>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: SLOTS A/B -->
+        <section id="ab" class="section">
+            <h2>Comparación A/B de Cadenas</h2>
+            <p>El sistema de <strong>slots A/B</strong> te permite mantener dos configuraciones de mastering independientes y alternar entre ellas con un solo clic. Es ideal para comparar dos enfoques distintos sin perder el trabajo realizado.</p>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Activar los slots</h3>
+                    <p>En la barra superior de la cadena de señal encontrarás los botones <kbd>A</kbd> y <kbd>B</kbd>. Al cargar un audio, el slot <strong>A</strong> se activa automáticamente.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Copiar la cadena al slot B</h3>
+                    <p>Cuando añadas módulos en el slot A y pulses <kbd>B</kbd> por primera vez, la aplicación te preguntará si deseas copiar los módulos actuales. Responde <strong>Sí</strong> para duplicarlos o <strong>No</strong> para empezar B desde cero.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Alternar entre A y B</h3>
+                    <p>Una vez que ambos slots tienen contenido, puedes pulsar <kbd>A</kbd> o <kbd>B</kbd> en cualquier momento para cambiar instantáneamente de cadena. El estado de cada slot se guarda automáticamente.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h3>Guardar ambas cadenas</h3>
+                    <p>Al usar <kbd>↓ GUARDAR</kbd>, el archivo JSON incluirá <strong>los dos slots</strong>. Al cargarlo después, recuperarás tanto A como B tal cual los dejaste.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: MODO SOLO -->
+        <section id="solo" class="section">
+            <h2>Modo Solo</h2>
+            <p>El <strong>modo Solo</strong> te permite escuchar únicamente el efecto de un módulo concreto, silenciando temporalmente todos los demás. Es ideal para ajustar con precisión el sonido de un procesador sin distracciones.</p>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Activar Solo</h3>
+                    <p>Pulsa el botón <kbd>S</kbd> en la miniatura del módulo dentro de la cadena de señal, o en la cabecera de su tarjeta de edición. Todos los demás módulos se pondrán en bypass automáticamente.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Desactivar Solo</h3>
+                    <p>Vuelve a pulsar el mismo botón <kbd>S</kbd> (ahora resaltado en ámbar) para restaurar el estado anterior de todos los módulos. La cadena volverá exactamente a como estaba antes de activar Solo.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: ANÁLISIS ESPECTRAL -->
+        <section id="spectrum" class="section">
+            <h2>Analizador de Espectro y Recomendaciones</h2>
+            <p>El <strong>analizador de espectro</strong> te muestra en tiempo real la distribución de frecuencias de tu audio. Además, el <strong>asistente de análisis</strong> puede sugerirte una cadena de mastering basada en las características de tu pista.</p>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Abrir el panel de espectro</h3>
+                    <p>Pulsa el botón <kbd>▼ ESPECTRO</kbd> situado entre la forma de onda y el editor de módulos. Se desplegará un panel de 200 píxeles de alto con el gráfico de frecuencias.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Alternar modo de visualización</h3>
+                    <p>En la esquina superior derecha del panel encontrarás un pequeño botón que conmuta entre <strong>barras</strong> y <strong>línea</strong>. El gráfico incluye etiquetas de frecuencia (Hz) y amplitud (dB).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Analizar y obtener recomendaciones</h3>
+                    <p>Pulsa el botón <kbd>🔍 ANALYZE &amp; RECOMMEND</kbd>. La aplicación procesará todo el audio y mostrará en el panel derecho una lista de problemas detectados (exceso de graves, sibilancia, falta de brillo, etc.).</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h3>Aplicar la cadena sugerida</h3>
+                    <p>Si estás conforme con las recomendaciones, pulsa <kbd>APPLY SUGGESTED CHAIN</kbd>. La cadena actual se reemplazará por los módulos recomendados y podrás ajustarlos a tu gusto.</p>
                 </div>
             </div>
         </section>
@@ -321,27 +413,22 @@ li {
             <h2>Todos los Módulos del Rack</h2>
             <p>Cada módulo está optimizado para una función específica en la cadena de masterización:</p>
             <div class="grid">
-                <!-- Dinámica -->
                 <div class="card"><div class="card-title"><div class="led" style="background: #4488ff;"></div> Puerta de Ruido</div><p>Elimina ruido de fondo en pasajes silenciosos.</p><div class="card-desc">Thresh · Attack · Release</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ffaa00;"></div> Compresor</div><p>Controla el rango dinámico y aporta pegada.</p><div class="card-desc">Thresh · Ratio · Makeup</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ff3366;"></div> Limitador</div><p>Evita saturación y maximiza el volumen.</p><div class="card-desc">Thresh · Release · Makeup</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ff33aa;"></div> Tremolo</div><p>Modulación de amplitud para efectos rítmicos.</p><div class="card-desc">Rate · Depth</div></div>
-                <!-- Filtros -->
                 <div class="card"><div class="card-title"><div class="led" style="background: #00d4b0;"></div> Filtro HP/LP</div><p>Limpia frecuencias no deseadas en graves y agudos.</p><div class="card-desc">High-Pass · Low-Pass</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #cc44ff;"></div> De‑esser (clásico)</div><p>Reduce sibilancias mediante filtro notch.</p><div class="card-desc">Freq · BW · Depth</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #33dd77;"></div> Ecualizador 4-B</div><p>Balance tonal preciso con 4 bandas paramétricas.</p><div class="card-desc">Freq · Gain · Q x4</div></div>
-                <!-- Espacial -->
                 <div class="card"><div class="card-title"><div class="led" style="background: #3388ff;"></div> Chorus</div><p>Anchura y movimiento tipo coro.</p><div class="card-desc">Rate · Depth · Mix</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #aa33ff;"></div> Flanger</div><p>Barrido tipo jet.</p><div class="card-desc">Rate · Depth · Feedback</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #aa66ff;"></div> Reverb</div><p>Profundidad y espacio.</p><div class="card-desc">Size · Decay · Mix</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ffcc33;"></div> Delay</div><p>Eco y repeticiones.</p><div class="card-desc">Time · Feedback · Mix</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #44ccff;"></div> Widener</div><p>Ensancha la imagen estéreo.</p><div class="card-desc">Width · Mix</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ffaa44;"></div> Mid/Side</div><p>Procesa centro y laterales por separado.</p><div class="card-desc">Mid · Side · Mix</div></div>
-                <!-- Saturación -->
                 <div class="card"><div class="card-title"><div class="led" style="background: #ff6633;"></div> Saturador</div><p>Calidez analógica y armónicos.</p><div class="card-desc">Drive · Tone · Output</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #ff8844;"></div> Soft Clipper</div><p>Recorte suave de picos, aumento de volumen.</p><div class="card-desc">Drive · Mix · Output</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #33dd99;"></div> Exciter Armónico</div><p>Añade brillo y aire mediante armónicos pares.</p><div class="card-desc">Cutoff · Drive · Mix</div></div>
-                <!-- Avanzados -->
                 <div class="card"><div class="card-title"><div class="led" style="background: #dd66ff;"></div> De‑esser Pro</div><p>Reducción dinámica de sibilancias.</p><div class="card-desc">Freq · Thresh · Ratio · Mix</div></div>
                 <div class="card"><div class="card-title"><div class="led" style="background: #aa88ff;"></div> Compresor Multibanda</div><p>Compresión por bandas (bajos, medios, agudos).</p><div class="card-desc">3x Threshold · Ratio · Gain</div></div>
             </div>
@@ -353,11 +440,11 @@ li {
             <div class="grid">
                 <div class="card">
                     <div class="card-title">Presets de Instrumentos</div>
-                    <p>Usa el selector superior para cargar configuraciones optimizadas para Pistas Completas, Baterías, Voces, Guitarras o Teclados.</p>
+                    <p>Usa el selector superior para cargar configuraciones optimizadas para 25 fuentes distintas: guitarras, pianos, voces, baterías, orquesta y mezclas completas.</p>
                 </div>
                 <div class="card">
                     <div class="card-title">Guardar / Cargar</div>
-                    <p>Exporta tu cadena completa + ajustes de loop + ganancia de salida a un archivo <kbd>.json</kbd>. Cárgalo después para retomar tu trabajo.</p>
+                    <p>Exporta tu cadena completa (incluyendo <strong>ambos slots A/B</strong>) + ajustes de loop + ganancia de salida a un archivo <kbd>.json</kbd>. Cárgalo después para retomar tu trabajo.</p>
                 </div>
                 <div class="card">
                     <div class="card-title">Exportación WAV</div>
@@ -386,6 +473,12 @@ li {
             <p style="margin-top: 20px;"><em>Nota: Asegúrate de que el foco no esté dentro de un campo de texto para que funcionen los atajos.</em></p>
         </section>
 
+        <!-- SECCIÓN: DITHERING -->
+<section id="dithering" class="section">
+    <h2>Dithering Profesional en la Exportación</h2>
+    <p>Al exportar tu audio a un archivo WAV de 16 bits, RACK4MASTER aplica automáticamente <strong>dithering TPDF (Triangular Probability Density Function)</strong>. Este proceso añade un ruido de muy bajo nivel que elimina la distorsión de cuantización, preservando la calidad del sonido incluso en los pasajes más silenciosos (colas de reverb, fundidos, etc.). El resultado es un archivo de audio con calidad profesional, listo para distribución.</p>
+</section>
+
         <!-- INTERFAZ -->
         <section id="interface" class="section">
             <h2>Controles de la Interfaz</h2>
@@ -404,7 +497,7 @@ li {
             <div class="step">
                 <div class="step-content">
                     <h3>Bypass Global</h3>
-                    <p>El pequeño botón junto a "SALIDA" (o tecla <kbd>B</kbd>) desactiva todos los efectos instantáneamente para comparar con el audio original.</p>
+                    <p>El botón <kbd>ON/OFF</kbd> en la barra de la cadena (o tecla <kbd>B</kbd>) desactiva todos los efectos instantáneamente para comparar con el audio original.</p>
                 </div>
             </div>
             <div class="step">

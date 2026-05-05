@@ -31,9 +31,16 @@ export function buildModuleCard(mod) {
   bypassBtn.dataset.id = mod.id;
   bypassBtn.textContent = mod.bypassed ? 'ON' : 'BYP';
 
+  const soloBtn = document.createElement('button');
+  soloBtn.className = 'btn-byp btn-solo';
+  soloBtn.dataset.id = mod.id;
+  soloBtn.textContent = 'S';
+  soloBtn.title = 'Escuchar solo este módulo';
+
   hd.appendChild(led);
   hd.appendChild(titleSpan);
   hd.appendChild(bypassBtn);
+  hd.appendChild(soloBtn);
 
   const resetBtn = document.createElement('button');
   resetBtn.textContent = '↺';
@@ -47,7 +54,6 @@ export function buildModuleCard(mod) {
   });
   hd.appendChild(resetBtn);
 
-  // Botón de información (i)
   const infoBtn = document.createElement('button');
   infoBtn.textContent = 'ⓘ';
   infoBtn.title = 'Información del módulo';
@@ -117,7 +123,6 @@ export function buildModuleCard(mod) {
     presetSelect.value = presetName;
   });
 
-  // Contenedor para alinear el select y el botón info a la derecha
   const rightGroup = document.createElement('div');
   rightGroup.style.cssText = 'margin-left: auto; display: flex; gap: 8px; align-items: center;';
   rightGroup.appendChild(presetSelect);
@@ -129,6 +134,25 @@ export function buildModuleCard(mod) {
   const body = document.createElement('div');
   body.className = 'mod-body';
 
+  // --- SOPORTE PARA INTERFAZ PERSONALIZADA POR MÓDULO (nueva arquitectura) ---
+  if (def.buildUI) {
+    const customUI = def.buildUI(mod);
+    body.appendChild(customUI);
+    card.appendChild(body);
+
+    bypassBtn.addEventListener('click', () => {
+      if (window.toggleBypass) window.toggleBypass(mod.id);
+    });
+    soloBtn.addEventListener('click', () => {
+      if (window.toggleSolo) window.toggleSolo(mod.id);
+    });
+    mod.presetSelect = presetSelect;
+    return card;
+  }
+
+  // --------------------------------------------------------
+  // CASO ESPECIAL: EQ 4‑BAND (por ahora sin curva, solo knobs)
+  // --------------------------------------------------------
   if (mod.type === 'eq') {
     const bands = def.bands || [];
     bands.forEach(band => {
@@ -245,6 +269,9 @@ export function buildModuleCard(mod) {
 
   bypassBtn.addEventListener('click', () => {
     if (window.toggleBypass) window.toggleBypass(mod.id);
+  });
+  soloBtn.addEventListener('click', () => {
+    if (window.toggleSolo) window.toggleSolo(mod.id);
   });
 
   mod.presetSelect = presetSelect;

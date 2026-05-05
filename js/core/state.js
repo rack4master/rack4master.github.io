@@ -11,6 +11,12 @@ export let isPlaying = false;
 export let startedAt = 0;
 export let pauseOffset = 0;
 
+// --- NUEVO: Slots A/B ---
+export let slotA = null;   // objeto { modules, outputGainDb, loop } o null
+export let slotB = null;
+export let activeSlot = 'A'; // 'A' o 'B'
+// -----------------------
+
 export function addModuleToState(mod) { modules.push(mod); nextId = mod.id; }
 export function removeModuleFromState(id) { const idx = modules.findIndex(m => m.id === id); if (idx !== -1) modules.splice(idx, 1); }
 export function updateModuleBypass(id, bypassed) { const mod = modules.find(m => m.id === id); if (mod) mod.bypassed = bypassed; }
@@ -26,3 +32,9 @@ export function setPauseOffset(value) { pauseOffset = value; }
 
 // Actualiza el orden del array de módulos según el orden visual del DOM (usado por Sortable)
 export function setModuleOrder(orderedModules) { modules = orderedModules; }
+
+// --- NUEVO: setters de slots ---
+export function setSlotA(data) { slotA = data; }
+export function setSlotB(data) { slotB = data; }
+export function setActiveSlot(slot) { activeSlot = slot; }
+// ------------------------------

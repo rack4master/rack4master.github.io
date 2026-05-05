@@ -72,6 +72,8 @@
 
     <div class="transport" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding-top: 8px; padding-bottom: 4px; gap: 6px;">
       <input type="file" id="file-input" accept="audio/*" hidden>
+
+
       <div style="display: flex; align-items: center; gap: 14px;">
         <div class="transport-btns">
           <button class="btn-tr btn-play" id="btn-play" disabled title="Play / Pause">
@@ -125,6 +127,9 @@
         </optgroup>
         <optgroup data-i18n="ui.inst.group.drums" label="DRUMS / PERCUSSION">
           <option value="acoustic-drums" data-i18n="ui.inst.acoustic_drums">Acoustic Drums</option>
+          <option value="studio-drums" data-i18n="ui.inst.studio_drums">Studio Drums</option>
+          <option value="vintage-drums" data-i18n="ui.inst.vintage_drums">Vintage Drums</option>
+          <option value="jazz-drums" data-i18n="ui.inst.jazz_drums">Jazz Drums</option>
           <option value="electronic-drums" data-i18n="ui.inst.electronic_drums">Electronic Drums</option>
           <option value="percussion" data-i18n="ui.inst.percussion">Percussion</option>
         </optgroup>
@@ -133,11 +138,17 @@
           <option value="brass" data-i18n="ui.inst.brass">Brass</option>
           <option value="woodwinds" data-i18n="ui.inst.woodwinds">Woodwinds</option>
         </optgroup>
-        <optgroup data-i18n="ui.inst.group.mix" label="MIX / MASTERING">
-          <option value="full-mix" data-i18n="ui.inst.full_mix">Full Mix</option>
-          <option value="master-bus" data-i18n="ui.inst.master_bus">Master Bus</option>
-          <option value="lofi" data-i18n="ui.inst.lofi">Lo‑Fi / Vintage</option>
-          <option value="bass-boost" data-i18n="ui.inst.bass_boost">Bass Enhancer</option>
+        <optgroup data-i18n="ui.inst.group.genres" label="MIX BY GENRE">
+          <option value="rock" data-i18n="ui.inst.rock">Rock</option>
+          <option value="blues" data-i18n="ui.inst.blues">Blues</option>
+          <option value="country" data-i18n="ui.inst.country">Country</option>
+          <option value="folk" data-i18n="ui.inst.folk">Folk</option>
+          <option value="jazz" data-i18n="ui.inst.jazz">Jazz</option>
+          <option value="urban" data-i18n="ui.inst.urban">Urban</option>
+          <option value="latino" data-i18n="ui.inst.latino">Latino</option>
+          <option value="pop" data-i18n="ui.inst.pop">Pop</option>
+          <option value="ballad" data-i18n="ui.inst.ballad">Ballad</option>
+          <option value="mastering" data-i18n="ui.inst.mastering">Mastering</option>
         </optgroup>
         <option value="empty" data-i18n="ui.inst.empty">Empty project</option>
       </select>
@@ -179,10 +190,14 @@
 
   <div class="app-body">
     <div class="workspace">
+
       <section class="wf-section">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
           <div class="sec-label" data-i18n="ui.source_audio" style="margin:0;">AUDIO ORIGINAL</div>
-          <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
+            <button id="btn-toggle-waveform" class="btn-toggle-panel" title="Mostrar/ocultar forma de onda">▲</button>
+          </div>
         </div>
         <div class="wf-wrap" id="wf-wrap">
           <canvas id="wf-canvas"></canvas>
@@ -196,8 +211,42 @@
             </span>
           </div>
         </div>
+
+        <!-- TOGGLE DEL ESPECTRO (solo el botón, sin el de modo) -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px; margin-bottom: 2px;">
+          <button id="btn-toggle-spectrum" class="btn-toggle-spectrum" data-i18n="ui.toggle_spectrum">▼ ESPECTRO</button>
+        </div>
+
       </section>
 
+
+
+      <!-- PANEL DEL ESPECTRO (DESPLEGABLE) -->
+      <div id="spectrum-panel" class="spectrum-panel hidden">
+        <div class="spectrum-main">
+          <canvas id="spectrum-canvas"></canvas>
+          <!-- Botón de modo dentro del panel, esquina superior derecha -->
+          <button id="btn-spectrum-mode" class="btn-spectrum-mode-panel" title="Cambiar modo de visualización">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="4" width="3" height="9" rx="0.5"/>
+              <rect x="5.5" y="1" width="3" height="12" rx="0.5"/>
+              <rect x="10" y="6" width="3" height="7" rx="0.5"/>
+            </svg>
+          </button>
+          <div style="text-align:center; padding: 6px;">
+            <button id="btn-analyze" class="btn-analyze">🔍 ANALYZE &amp; RECOMMEND</button>
+          </div>
+        </div>
+        <div class="spectrum-results" id="spectrum-results">
+          <div class="spectrum-results-title">RESULTS</div>
+          <div class="spectrum-results-list" id="spectrum-results-list">
+            <div class="spectrum-results-empty">Run analysis to see recommendations</div>
+          </div>
+          <button id="btn-apply-recommendations" class="btn-apply-recommendations hidden">APPLY SUGGESTED CHAIN</button>
+        </div>
+      </div>
+
+      <!-- EDITOR (siempre visible) -->
       <section class="editor-section">
         <div class="editor-placeholder" id="editor-placeholder">
           <div style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;">🎛️</div>
@@ -209,7 +258,22 @@
       <section class="chain-section">
         <div class="chain-topbar">
           <div class="sec-label" data-i18n="ui.signal_chain" style="margin:0;">CADENA DE SEÑAL</div>
-          <button class="btn-clear" id="btn-clear-modules" data-i18n="ui.clear_modules">✕ CLEAR MODULES</button>
+          <div class="chain-topbar-right">
+            <div class="chain-ab-group">
+              <button id="btn-slot-a" class="btn-ab" title="Slot A">A</button>
+              <button id="btn-slot-b" class="btn-ab" title="Slot B">B</button>
+            </div>
+            <button class="btn-clear" id="btn-clear-modules" data-i18n="ui.clear_modules">✕ CLEAR MODULES</button>
+            <button id="btn-global-bypass" class="btn-tr" style="width: 30px; height: 30px; padding: 0;" title="Global Bypass">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                <line x1="12" y1="2" x2="12" y2="12"></line>
+              </svg>
+            </button>
+            <div class="chain-topbar-sep"></div>
+            <button id="btn-toggle-chain" class="btn-toggle-panel" title="Mostrar/ocultar cadena de miniaturas">▼</button>
+            <button id="btn-toggle-sidebar" class="btn-toggle-panel" title="Mostrar/ocultar panel lateral">▶</button>
+          </div>
         </div>
         <div class="chain-scroll">
           <div class="chain-wrapper" style="position: relative;">
@@ -217,12 +281,6 @@
             <div class="chain-placeholder" id="chain-placeholder" data-i18n="ui.drag_here">← ARRASTRA MÓDULOS AQUÍ →</div>
             <div class="chain-area horizontal" id="chain-area"></div>
             <div class="flow-cap"><span class="flow-arrow">→</span> OUTPUT</div>
-            <button id="btn-global-bypass" class="btn-tr" style="position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; padding: 0; background: var(--green); border-color: var(--green); z-index: 10;" title="Global Bypass">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                <line x1="12" y1="2" x2="12" y2="12"></line>
-              </svg>
-            </button>
           </div>
         </div>
       </section>
@@ -246,7 +304,6 @@
         </div>
 
         <div class="sidebar-list" id="sidebar-list">
-      <!-- Slots con botón ⊕ primero y luego ⓘ -->
       <div class="slot" data-type="gate" data-cat="dynamics">
         <div class="slot-led" style="--lc:#4488ff"></div>
         <div class="slot-info">

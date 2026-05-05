@@ -52,10 +52,12 @@ export function applyParam(mod, key, value) {
 export function ensureCtx() {
   if (window.audioCtx) return;
   window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // Analizadores para los VU y el espectro
   window.audioCtx.analyserL = window.audioCtx.createAnalyser();
-  window.audioCtx.analyserL.fftSize = 512;
+  window.audioCtx.analyserL.fftSize = 2048;   // ← antes 512
   window.audioCtx.analyserR = window.audioCtx.createAnalyser();
-  window.audioCtx.analyserR.fftSize = 512;
+  window.audioCtx.analyserR.fftSize = 2048;   // ← antes 512
+
   const splitter = window.audioCtx.createChannelSplitter(2);
   const merger = window.audioCtx.createChannelMerger(2);
   window.audioCtx.chainInput = window.audioCtx.createGain();
@@ -99,7 +101,6 @@ export function buildAudioNodes(type, params, offlineCtx = null) {
     return moduleDef.buildNodes(ctx, params);
   } else {
     console.warn(`Módulo ${type} no tiene buildNodes`);
-    // Fallback: un bypass directo
     const input = ctx.createGain();
     const output = ctx.createGain();
     input.connect(output);

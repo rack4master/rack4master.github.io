@@ -18,13 +18,11 @@ export function buildModuleThumb(mod) {
   title.className = 'thumb-title';
   title.textContent = translatedLabel;
 
-  // Añadir subtexto con los parámetros principales (primeros 3)
   const paramsText = Object.values(def.params).slice(0, 3).map(p => p.label).join(' · ');
   const paramsSpan = document.createElement('div');
   paramsSpan.className = 'thumb-params';
   paramsSpan.textContent = paramsText;
 
-  // Botones simulados (no funcionales) para aspecto de rack
   const simButtons = document.createElement('div');
   simButtons.className = 'thumb-simulated-buttons';
   for (let i = 0; i < 3; i++) {
@@ -41,12 +39,20 @@ export function buildModuleThumb(mod) {
   bypassBtn.dataset.id = mod.id;
   bypassBtn.textContent = mod.bypassed ? 'ON' : 'BYP';
 
+  // --- Nuevo botón SOLO ---
+  const soloBtn = document.createElement('button');
+  soloBtn.className = 'thumb-btn solo-btn';
+  soloBtn.dataset.id = mod.id;
+  soloBtn.textContent = 'S';
+  soloBtn.title = 'Solo (escuchar solo este módulo)';
+
   const removeBtn = document.createElement('button');
   removeBtn.className = 'thumb-btn rm-btn';
   removeBtn.dataset.id = mod.id;
   removeBtn.textContent = '✕';
 
   controls.appendChild(bypassBtn);
+  controls.appendChild(soloBtn);   // añadido entre BYP y ✕
   controls.appendChild(removeBtn);
 
   thumb.appendChild(led);
@@ -64,6 +70,10 @@ export function buildModuleThumb(mod) {
   bypassBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (window.toggleBypass) window.toggleBypass(mod.id);
+  });
+  soloBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.toggleSolo) window.toggleSolo(mod.id);
   });
   removeBtn.addEventListener('click', (e) => {
     e.stopPropagation();

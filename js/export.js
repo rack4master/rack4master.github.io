@@ -66,11 +66,26 @@ export function downloadWav(renderedBuffer) {
   const channels = [];
   for (let c = 0; c < nc; c++) channels.push(renderedBuffer.getChannelData(c));
 
+  // Dithering TPDF (Triangular Probability Density Function)
+  // Se aplica justo antes de cuantizar a 16 bits para eliminar la distorsión de cuantización
+  const ditherScale = 1.0 / 32768.0; // 1 LSB de un entero de 16 bits
+
   let off = 44;
   for (let i = 0; i < len; i++) {
     for (let c = 0; c < nc; c++) {
-      const s = Math.max(-1, Math.min(1, channels[c][i]));
-      view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      // Generar ruido TPDF: suma de dos ruidos rectangulares independientes
+      const r1 = Math.random();
+      const r2 = Math.random();
+      const dither = (r1 + r2 - 1.0) * ditherScale;
+
+      // Mezclar dither con la muestra original y recortar a [-1, 1]
+      let s = channels[c][i] + dither;
+      if (s > 1.0) s = 1.0;
+      if (s < -1.0) s = -1.0;
+
+      // Cuantizar a 16 bits con redondeo simétrico
+      const intSample = Math.round(s * 32767);
+      view.setInt16(off, intSample, true);
       off += 2;
     }
   }
