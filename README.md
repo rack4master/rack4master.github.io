@@ -139,8 +139,8 @@ All rights reserved. © 2026
 
   ---
 
-> **🚀 Want a quicker workflow?**
-> If you are looking for a simplified, fully automated experience, check out our compact version: [rack4master-mini](https://rack4master.github.io/rack4master-mini/).
+**🚀 Want a quicker workflow?**
+If you are looking for a simplified, fully automated experience, check out our compact version: [rack4master-mini](https://rack4master.github.io/rack4master-mini/).
 
   ---
   
