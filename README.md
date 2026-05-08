@@ -14,7 +14,7 @@ AND MOST IMPORTANTLY... IT'S COMPLETELY FREE!
 
 If you find RACK4MASTER useful, **help us grow** by giving a star on GitHub:
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/rack4master/rack4master?style=social)](https://github.com/rack4master/rack4master)
+[![GitHub Repo stars](https://img.shields.io/github/stars/rack4master/rack4master.github.io?style=social)](https://github.com/rack4master/rack4master.github.io)
 
 You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DVSJ8WY&no_recurring=1&currency_code=EUR) to keep improving the tool.
 
