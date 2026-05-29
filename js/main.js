@@ -1146,25 +1146,200 @@ loadPresetBtnElem?.addEventListener('click', () => presetInput?.click());
 presetInput?.addEventListener('change', e => { if (e.target.files[0]) loadPresetFromFile(e.target.files[0]); });
 
 // --------------------------------------------------------------
-// EXPORTAR WAV
+// EXPORTAR WAV - CON SELECCIÓN DE FORMATO
 // --------------------------------------------------------------
-const exportWavBtn = document.getElementById('btn-export-wav');
-if (exportWavBtn) {
-  exportWavBtn.addEventListener('click', async () => {
-    if (!audioBuffer) { alert('Load an audio file first'); return; }
-    ensureCtx();
-    exportWavBtn.disabled = true;
-    exportWavBtn.textContent = '⟳ Rendering…';
-    try {
-      const chainArea = document.getElementById('chain-area');
-      const rendered = await renderOffline(audioBuffer, modules, globalBypass, outGainDb, chainArea);
-      downloadWav(rendered);
-    } catch (err) {
-      console.error(err);
-      alert('Error exporting audio');
+let exportBitDepth = 16;
+let exportSampleRate = 0; // 0 = original
+
+// Inyectar estilos del diálogo (solo una vez)
+function injectExportStyles() {
+  if (document.getElementById('export-dialog-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'export-dialog-styles';
+  style.textContent = `
+    .export-dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
     }
-    exportWavBtn.disabled = false;
-    exportWavBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v7M3 5l3 3 3-3M1 11h10"/></svg> WAV';
+    .export-dialog-box {
+      background: var(--panel);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 24px 28px;
+      min-width: 280px;
+      max-width: 340px;
+      font-family: var(--fnt-ui);
+      color: var(--tx1);
+    }
+    .export-dialog-box h3 {
+      font-family: var(--fnt-display);
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--amber);
+      margin: 0 0 18px;
+    }
+    .efmt-label {
+      font-size: 0.75rem;
+      color: var(--tx3);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .efmt-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .efmt-opt {
+      flex: 1;
+      padding: 8px 0;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--tx2);
+      font-family: var(--fnt-ui);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .efmt-opt.sel {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: #000;
+    }
+    .efmt-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .efmt-cancel, .efmt-go {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      font-family: var(--fnt-ui);
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .efmt-cancel {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--tx3);
+    }
+    .efmt-go {
+      background: var(--green);
+      color: #000;
+    }
+    .efmt-go:hover { filter: brightness(1.1); }
+  `;
+  document.head.appendChild(style);
+}
+
+function showExportDialog() {
+  injectExportStyles();
+  let dlg = document.getElementById('exportFmtDialog');
+  if (!dlg) {
+    const div = document.createElement('div');
+    div.id = 'exportFmtDialog';
+    div.className = 'export-dialog-overlay';
+    div.innerHTML = `
+      <div class="export-dialog-box">
+        <h3>📀 Exportar WAV</h3>
+        <div class="efmt-label">Profundidad de bits</div>
+        <div class="efmt-group">
+          <button class="efmt-opt" data-bits="16">16 bits</button>
+          <button class="efmt-opt" data-bits="24">24 bits</button>
+        </div>
+        <div class="efmt-label">Frecuencia de muestreo</div>
+        <div class="efmt-group">
+          <button class="efmt-opt" data-sr="0">Original</button>
+          <button class="efmt-opt" data-sr="48000">48.000 Hz</button>
+        </div>
+        <div class="efmt-actions">
+          <button class="efmt-cancel">Cancelar</button>
+          <button class="efmt-go">Descargar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div);
+    dlg = div;
+
+    dlg.querySelectorAll('.efmt-opt[data-bits]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        exportBitDepth = parseInt(btn.dataset.bits, 10);
+        dlg.querySelectorAll('.efmt-opt[data-bits]').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+      });
+    });
+    dlg.querySelectorAll('.efmt-opt[data-sr]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        exportSampleRate = parseInt(btn.dataset.sr, 10);
+        dlg.querySelectorAll('.efmt-opt[data-sr]').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+      });
+    });
+    dlg.querySelector('.efmt-cancel').addEventListener('click', () => {
+      dlg.style.display = 'none';
+    });
+    dlg.querySelector('.efmt-go').addEventListener('click', async () => {
+      dlg.style.display = 'none';
+      await doExport(exportBitDepth, exportSampleRate);
+    });
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) dlg.style.display = 'none';
+    });
+  }
+
+  // Sync visual state
+  const bitsBtns = dlg.querySelectorAll('.efmt-opt[data-bits]');
+  bitsBtns.forEach(btn => {
+    const bits = parseInt(btn.dataset.bits, 10);
+    btn.classList.toggle('sel', bits === exportBitDepth);
+  });
+  const srBtns = dlg.querySelectorAll('.efmt-opt[data-sr]');
+  srBtns.forEach(btn => {
+    const sr = parseInt(btn.dataset.sr, 10);
+    btn.classList.toggle('sel', sr === exportSampleRate);
+  });
+
+  dlg.style.display = 'flex';
+}
+
+async function doExport(bitDepth, sampleRate) {
+  if (!audioBuffer) return;
+  const exportBtn = document.getElementById('btn-export-wav');
+  if (!exportBtn) return;
+  exportBtn.disabled = true;
+  const originalText = exportBtn.innerHTML;
+  exportBtn.innerHTML = '⟳ Renderizando...';
+  try {
+    const chainArea = document.getElementById('chain-area');
+    const targetSR = (sampleRate === 48000) ? 48000 : null;
+    const rendered = await renderOffline(audioBuffer, modules, globalBypass, outGainDb, chainArea, targetSR);
+    downloadWav(rendered, bitDepth);
+  } catch (err) {
+    console.error(err);
+    alert('Error al exportar el audio');
+  } finally {
+    exportBtn.disabled = false;
+    exportBtn.innerHTML = originalText;
+  }
+}
+
+// Reemplazar el manejador original del botón de exportación
+const originalExportBtn = document.getElementById('btn-export-wav');
+if (originalExportBtn) {
+  const newExportBtn = originalExportBtn.cloneNode(true);
+  originalExportBtn.parentNode.replaceChild(newExportBtn, originalExportBtn);
+  newExportBtn.addEventListener('click', () => {
+    if (!audioBuffer) { alert('Carga un archivo de audio primero'); return; }
+    showExportDialog();
   });
 }
 
@@ -1335,8 +1510,6 @@ if (shortcutsBtn && modalOverlay && modalTitle && modalBody) {
 // --------------------------------------------------------------
 // DESCRIPCIONES DE MÓDULOS
 // --------------------------------------------------------------
-// Las descripciones de modulos se leen del sistema de traduccion (lang.js)
-// para soportar EN / ES / CA. Ya no son strings fijos en castellano.
 window.moduleDescriptions = new Proxy({}, {
   get: function(target, moduleType) {
     var key = 'info.' + moduleType + '.desc';
