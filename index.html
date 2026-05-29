@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Metadatos SEO y redes sociales -->
+  <meta name="description" content="RACK4MASTER: profesional audio mastering and effects chain in your browser. Free, open-source, private. Process WAV/MP3 with compressors, EQs, limiters, and more. Export WAV.">
+  <meta name="keywords" content="audio mastering, effects chain, web audio, daw, music production, compressor, limiter, eq, open source, browser-based, rack4master">
+  <meta name="author" content="Francesc Llorens Cerdà">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:title" content="RACK4MASTER – Audio Mastering & Effects Chain">
+  <meta property="og:description" content="Master your tracks with a modular rack of professional audio processors. Runs locally in your browser. Free and open source.">
+  <meta property="og:image" content="https://github.com/rack4master/rack4master.github.io/blob/main/pic.png">
+  <meta property="og:url" content="https://github.com/rack4master/rack4master.github.io">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RACK4MASTER – Mastering & Effects Chain">
+  <meta name="twitter:description" content="Professional audio mastering tool in your browser. No uploads, full privacy. Free and open source.">
+  <meta name="twitter:image" content="https://github.com/rack4master/rack4master.github.io/blob/main/pic.png">
+
+  <!-- Datos estructurados JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "RACK4MASTER",
+    "description": "Browser-based audio mastering and effects chain",
+    "applicationCategory": "Multimedia",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "creator": {
+      "@type": "Person",
+      "name": "Francesc Llorens Cerdà"
+    },
+    "url": "https://github.com/rack4master/rack4master.github.io",
+    "screenshot": "https://github.com/rack4master/rack4master.github.io/blob/main/pic.png"
+  }
+  </script>
+
+  <title>RACK4MASTER — Effects Chain for Audio Mastering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="logo" style="flex-direction: row; align-items: center; gap: 12px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+        <circle cx="8" cy="16" r="2"></circle>
+        <circle cx="16" cy="16" r="2"></circle>
+        <path d="M6 8h12"></path>
+        <path d="M6 12h4"></path>
+      </svg>
+      <div style="display: flex; flex-direction: column; line-height: 1;">
+        <span class="logo-g">RACK4MASTER</span>
+        <span class="logo-c" data-i18n="ui.subtitle" style="font-size: 8px; letter-spacing: 2px; margin-top: 6px;">EFFECTS CHAIN FOR AUDIO MASTERING</span>
+      </div>
+    </div>
+
+    <div class="transport" style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding-top: 8px; padding-bottom: 4px; gap: 6px;">
+      <input type="file" id="file-input" accept="audio/*" hidden>
+
+
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="transport-btns">
+          <button class="btn-tr btn-play" id="btn-play" disabled title="Play / Pause">
+            <svg id="ico-play" width="11" height="11" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11" fill="currentColor"/></svg>
+            <svg id="ico-pause" width="11" height="11" viewBox="0 0 12 12" style="display:none"><rect x="1.5" y="1" width="3.5" height="10" fill="currentColor" rx="1"/><rect x="7" y="1" width="3.5" height="10" fill="currentColor" rx="1"/></svg>
+          </button>
+          <button class="btn-tr btn-stop" id="btn-stop" disabled title="Stop / Rewind">
+            <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="currentColor" rx="1"/></svg>
+          </button>
+          <button class="btn-tr btn-loop" id="btn-loop" title="Toggle Loop">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4h10M9 1.5l2.5 2.5L9 6.5"/>
+              <path d="M12 10H2M5 12.5L2.5 10 5 7.5"/>
+            </svg>
+          </button>
+        </div>
+        <div class="time-display">
+          <span id="time-cur" class="time-cur">00:00.0</span>
+          <span class="time-sep">/</span>
+          <span id="time-tot">00:00.0</span>
+        </div>
+      </div>
+      <div class="track-info" id="track-name" data-i18n="ui.no_audio" style="letter-spacing: 1.5px; color: var(--tx3); text-align: center;">— No hay audio cargado —</div>
+    </div>
+
+    <div class="header-right" style="display: flex; align-items: center;">
+      <span data-i18n="ui.presets" style="font-family: var(--fnt-display); font-size: 11px; letter-spacing: 2px; color: var(--tx3); margin-right: 6px;">PRESETS:</span>
+
+      <select class="cat-select instrument-preset" id="instrument-select" style="height: 38px; margin-right: 14px;">
+        <option value="" disabled selected data-i18n="ui.inst.default">Instruments -&gt;</option>
+        <optgroup data-i18n="ui.inst.group.guitars" label="GUITARS">
+          <option value="acoustic-guitar" data-i18n="ui.inst.acoustic_guitar">Acoustic Guitar</option>
+          <option value="classical-guitar" data-i18n="ui.inst.classical_guitar">Classical Guitar</option>
+          <option value="clean-guitar" data-i18n="ui.inst.clean_guitar">Electric Clean</option>
+          <option value="drive-guitar" data-i18n="ui.inst.drive_guitar">Drive</option>
+          <option value="fuzz-guitar" data-i18n="ui.inst.fuzz_guitar">Fuzz</option>
+          <option value="metal-guitar" data-i18n="ui.inst.metal_guitar">Metal</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.pianos" label="PIANOS / KEYS">
+          <option value="grand-piano" data-i18n="ui.inst.grand_piano">Grand Piano</option>
+          <option value="studio-piano" data-i18n="ui.inst.studio_piano">Studio Piano</option>
+          <option value="rhodes" data-i18n="ui.inst.rhodes">Rhodes / Wurlitzer</option>
+          <option value="synth" data-i18n="ui.inst.synth">Synthesizer</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.vocals" label="VOCALS">
+          <option value="vocal-main" data-i18n="ui.inst.vocal_main">Lead Vocal</option>
+          <option value="vocal-male" data-i18n="ui.inst.vocal_male">Male Solo</option>
+          <option value="vocal-female" data-i18n="ui.inst.vocal_female">Female Solo</option>
+          <option value="choir" data-i18n="ui.inst.choir">Choirs</option>
+          <option value="rap" data-i18n="ui.inst.rap">Rap / Spoken</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.drums" label="DRUMS / PERCUSSION">
+          <option value="acoustic-drums" data-i18n="ui.inst.acoustic_drums">Acoustic Drums</option>
+          <option value="studio-drums" data-i18n="ui.inst.studio_drums">Studio Drums</option>
+          <option value="vintage-drums" data-i18n="ui.inst.vintage_drums">Vintage Drums</option>
+          <option value="jazz-drums" data-i18n="ui.inst.jazz_drums">Jazz Drums</option>
+          <option value="electronic-drums" data-i18n="ui.inst.electronic_drums">Electronic Drums</option>
+          <option value="percussion" data-i18n="ui.inst.percussion">Percussion</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.orchestral" label="ORCHESTRAL">
+          <option value="strings" data-i18n="ui.inst.strings">Strings</option>
+          <option value="brass" data-i18n="ui.inst.brass">Brass</option>
+          <option value="woodwinds" data-i18n="ui.inst.woodwinds">Woodwinds</option>
+        </optgroup>
+        <optgroup data-i18n="ui.inst.group.genres" label="MIX BY GENRE">
+          <option value="rock" data-i18n="ui.inst.rock">Rock</option>
+          <option value="blues" data-i18n="ui.inst.blues">Blues</option>
+          <option value="country" data-i18n="ui.inst.country">Country</option>
+          <option value="folk" data-i18n="ui.inst.folk">Folk</option>
+          <option value="jazz" data-i18n="ui.inst.jazz">Jazz</option>
+          <option value="urban" data-i18n="ui.inst.urban">Urban</option>
+          <option value="latino" data-i18n="ui.inst.latino">Latino</option>
+          <option value="pop" data-i18n="ui.inst.pop">Pop</option>
+          <option value="ballad" data-i18n="ui.inst.ballad">Ballad</option>
+          <option value="mastering" data-i18n="ui.inst.mastering">Mastering</option>
+        </optgroup>
+        <option value="empty" data-i18n="ui.inst.empty">Empty project</option>
+      </select>
+
+      <button class="btn-preset" id="btn-save-preset" data-i18n="ui.btn.save" style="white-space: nowrap;">↓ GUARDAR</button>
+      <button class="btn-preset" id="btn-load-preset" data-i18n="ui.btn.load" style="white-space: nowrap;">↑ CARGAR</button>
+      <input type="file" id="preset-input" accept=".json" hidden>
+      <button class="btn-wav" id="btn-export-wav" style="white-space: nowrap;">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 1v7M3 5l3 3 3-3M1 11h10"/>
+        </svg>
+        WAV
+      </button>
+
+      <div style="position: relative;">
+        <button id="btn-menu" class="btn-tr" style="width: 38px; padding: 0; margin-left: 14px;" title="Menú">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div id="dropdown-menu" class="dropdown-menu hidden">
+          <div class="dropdown-item" style="padding: 6px 16px;">
+            <select id="lang-select" class="cat-select" style="width: 100%; border: none; padding: 5px 0; cursor: pointer;">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="ca">Català</option>
+            </select>
+          </div>
+          <div style="height: 1px; background: var(--brd); margin: 2px 0;"></div>
+          <div class="dropdown-item" id="btn-help" data-i18n="menu.help">Ayuda</div>
+          <div class="dropdown-item" id="btn-shortcuts" data-i18n="menu.shortcuts">Atajos de teclado</div>
+          <div class="dropdown-item" id="btn-theme" data-i18n="menu.theme">Modo Día/Noche</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <div class="workspace">
+
+      <section class="wf-section">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div class="sec-label" data-i18n="ui.source_audio" style="margin:0;">AUDIO ORIGINAL</div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-clear" id="btn-clear" data-i18n="ui.clear_all">✕ LIMPIAR TODO</button>
+            <button id="btn-toggle-waveform" class="btn-toggle-panel" title="Mostrar/ocultar forma de onda">▲</button>
+          </div>
+        </div>
+        <div class="wf-wrap" id="wf-wrap">
+          <canvas id="wf-canvas"></canvas>
+          <div class="wf-empty" id="wf-empty" style="flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <span class="wf-icon">♬</span>
+              <span data-i18n="ui.drop_audio">DROP AUDIO FILE HERE &nbsp;·&nbsp; OR CLICK TO LOAD</span>
+            </div>
+            <span data-i18n="ui.audio_rights" style="font-family: var(--fnt-ui); font-size: 13px; letter-spacing: 0.5px; opacity: 0.55;">
+              You must own or have permission to use the audio you process.
+            </span>
+          </div>
+        </div>
+
+        <!-- TOGGLE DEL ESPECTRO (solo el botón, sin el de modo) -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px; margin-bottom: 2px;">
+          <button id="btn-toggle-spectrum" class="btn-toggle-spectrum" data-i18n="ui.toggle_spectrum">▼ ESPECTRO</button>
+        </div>
+
+      </section>
+
+
+
+      <!-- PANEL DEL ESPECTRO (DESPLEGABLE) -->
+      <div id="spectrum-panel" class="spectrum-panel hidden">
+        <div class="spectrum-main">
+          <canvas id="spectrum-canvas"></canvas>
+          <!-- Botón de modo dentro del panel, esquina superior derecha -->
+          <button id="btn-spectrum-mode" class="btn-spectrum-mode-panel" title="Cambiar modo de visualización">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="4" width="3" height="9" rx="0.5"/>
+              <rect x="5.5" y="1" width="3" height="12" rx="0.5"/>
+              <rect x="10" y="6" width="3" height="7" rx="0.5"/>
+            </svg>
+          </button>
+          <div style="text-align:center; padding: 6px;">
+            <button id="btn-analyze" class="btn-analyze">🔍 ANALYZE &amp; RECOMMEND</button>
+          </div>
+        </div>
+        <div class="spectrum-results" id="spectrum-results">
+          <div class="spectrum-results-title">RESULTS</div>
+          <div class="spectrum-results-list" id="spectrum-results-list">
+            <div class="spectrum-results-empty">Run analysis to see recommendations</div>
+          </div>
+          <button id="btn-apply-recommendations" class="btn-apply-recommendations hidden">APPLY SUGGESTED CHAIN</button>
+        </div>
+      </div>
+
+      <!-- EDITOR (siempre visible) -->
+      <section class="editor-section">
+        <div class="editor-placeholder" id="editor-placeholder">
+          <div style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;">🎛️</div>
+          <span data-i18n="ui.editor_empty">SELECCIONA UN MÓDULO EN LA CADENA<br>INFERIOR PARA EDITARLO</span>
+        </div>
+        <div class="editor-area" id="editor-area"></div>
+      </section>
+
+      <section class="chain-section">
+        <div class="chain-topbar">
+          <div class="sec-label" data-i18n="ui.signal_chain" style="margin:0;">CADENA DE SEÑAL</div>
+          <div class="chain-topbar-right">
+            <div class="chain-ab-group">
+              <button id="btn-slot-a" class="btn-ab" title="Slot A">A</button>
+              <button id="btn-slot-b" class="btn-ab" title="Slot B">B</button>
+            </div>
+            <button class="btn-clear" id="btn-clear-modules" data-i18n="ui.clear_modules">✕ CLEAR MODULES</button>
+            <button id="btn-global-bypass" class="btn-tr" style="width: 30px; height: 30px; padding: 0;" title="Global Bypass">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                <line x1="12" y1="2" x2="12" y2="12"></line>
+              </svg>
+            </button>
+            <div class="chain-topbar-sep"></div>
+            <button id="btn-toggle-chain" class="btn-toggle-panel" title="Mostrar/ocultar cadena de miniaturas">▼</button>
+            <button id="btn-toggle-sidebar" class="btn-toggle-panel" title="Mostrar/ocultar panel lateral">▶</button>
+          </div>
+        </div>
+        <div class="chain-scroll">
+          <div class="chain-wrapper" style="position: relative;">
+            <div class="flow-cap">INPUT <span class="flow-arrow">→</span></div>
+            <div class="chain-placeholder" id="chain-placeholder" data-i18n="ui.drag_here">← ARRASTRA MÓDULOS AQUÍ →</div>
+            <div class="chain-area horizontal" id="chain-area"></div>
+            <div class="flow-cap"><span class="flow-arrow">→</span> OUTPUT</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-hd">
+          <span class="sidebar-title" data-i18n="ui.rack_modules">MÓDULOS DEL RACK</span>
+          <span class="sidebar-hint" data-i18n="ui.drag_or_add">arrastra o ⊕</span>
+        </div>
+        <div class="cat-bar" style="display: flex; gap: 8px; align-items: center;">
+          <select class="cat-select" id="cat-select" style="width: 150px;">
+            <option value="all" data-i18n="ui.cat.all">TODOS LOS MÓDULOS</option>
+            <option value="dynamics" data-i18n="ui.cat.dyn">DINÁMICA</option>
+            <option value="filters" data-i18n="ui.cat.fil">FILTROS</option>
+            <option value="spatial" data-i18n="ui.cat.spa">ESPACIAL</option>
+            <option value="saturation" data-i18n="ui.cat.sat">SATURACIÓN</option>
+          </select>
+          <button id="sort-modules-btn" class="btn-tr" style="padding: 0 8px; height: 30px; font-size: 11px;" title="Ordenar alfabéticamente">A-Z</button>
+        </div>
+
+        <div class="sidebar-list" id="sidebar-list">
+      <div class="slot" data-type="gate" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#4488ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">PUERTA DE RUIDO</div>
+          <div class="slot-params">Thresh · Attack · Release</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="gate" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="compressor" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ffaa00"></div>
+        <div class="slot-info">
+          <div class="slot-name">COMPRESOR</div>
+          <div class="slot-params">Thresh · Ratio · Makeup</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="compressor" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="limiter" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ff3366"></div>
+        <div class="slot-info">
+          <div class="slot-name">LIMITADOR</div>
+          <div class="slot-params">Thresh · Release · Makeup</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="limiter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="tremolo" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#ff33aa"></div>
+        <div class="slot-info">
+          <div class="slot-name">TREMOLO</div>
+          <div class="slot-params">Rate · Depth</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="tremolo" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="filter" data-cat="filters">
+        <div class="slot-led" style="--lc:#00d4b0"></div>
+        <div class="slot-info">
+          <div class="slot-name">FILTRO HP/LP</div>
+          <div class="slot-params">High-Pass · Low-Pass</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="filter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="deesser" data-cat="filters">
+        <div class="slot-led" style="--lc:#cc44ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">DE-ESSER</div>
+          <div class="slot-params">Freq · Bandwidth · Depth</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="deesser" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="eq" data-cat="filters">
+        <div class="slot-led" style="--lc:#33dd77"></div>
+        <div class="slot-info">
+          <div class="slot-name">ECUALIZADOR 4-B</div>
+          <div class="slot-params">4× Freq · Gain · Q</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="eq" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="chorus" data-cat="spatial">
+        <div class="slot-led" style="--lc:#3388ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">CHORUS</div>
+          <div class="slot-params">Rate · Depth · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="chorus" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="flanger" data-cat="spatial">
+        <div class="slot-led" style="--lc:#aa33ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">FLANGER</div>
+          <div class="slot-params">Rate · Depth · Feedback</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="flanger" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="reverb" data-cat="spatial">
+        <div class="slot-led" style="--lc:#aa66ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">REVERB</div>
+          <div class="slot-params">Size · Decay · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="reverb" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="delay" data-cat="spatial">
+        <div class="slot-led" style="--lc:#ffcc33"></div>
+        <div class="slot-info">
+          <div class="slot-name">DELAY</div>
+          <div class="slot-params">Time · Feedback · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="delay" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="widener" data-cat="spatial">
+        <div class="slot-led" style="--lc:#44ccff"></div>
+        <div class="slot-info">
+          <div class="slot-name">WIDENER</div>
+          <div class="slot-params">Width · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="widener" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="saturator" data-cat="saturation">
+        <div class="slot-led" style="--lc:#ff6633"></div>
+        <div class="slot-info">
+          <div class="slot-name">SATURADOR</div>
+          <div class="slot-params">Drive · Tone · Output</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="saturator" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="midside" data-cat="spatial">
+        <div class="slot-led" style="--lc:#ffaa44"></div>
+        <div class="slot-info">
+          <div class="slot-name">MID/SIDE</div>
+          <div class="slot-params">Mid · Side · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="midside" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="softclipper" data-cat="saturation">
+        <div class="slot-led" style="--lc:#ff8844"></div>
+        <div class="slot-info">
+          <div class="slot-name">SOFT CLIPPER</div>
+          <div class="slot-params">Drive · Mix · Output</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="softclipper" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="exciter" data-cat="spatial">
+        <div class="slot-led" style="--lc:#33dd99"></div>
+        <div class="slot-info">
+          <div class="slot-name">EXCITER</div>
+          <div class="slot-params">Cutoff · Drive · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="exciter" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="deesserpro" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#dd66ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">DE-ESSER PRO</div>
+          <div class="slot-params">Freq · Thresh · Ratio · Mix</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="deesserpro" title="Información">ⓘ</button>
+      </div>
+      <div class="slot" data-type="multiband" data-cat="dynamics">
+        <div class="slot-led" style="--lc:#aa88ff"></div>
+        <div class="slot-info">
+          <div class="slot-name">MULTIBAND COMP.</div>
+          <div class="slot-params">3 bandas · Threshold · Ratio</div>
+        </div>
+        <button class="slot-btn">⊕</button>
+        <button class="slot-info-btn" data-module="multiband" title="Información">ⓘ</button>
+      </div>
+    </div>
+
+        <div class="sidebar-foot">
+          <div data-i18n="ui.drag_to_bottom">Arrastra a la cadena inferior</div>
+          <div data-i18n="ui.click_to_edit">Clic en miniatura para editar</div>
+        </div>
+      </div>
+      <div class="sidebar-bot">
+        <div class="meter-hd">
+          <span class="meter-title" data-i18n="ui.output">SALIDA</span>
+          <button class="btn-rst" id="btn-peak-rst" data-i18n="ui.btn.rst">RST PICO</button>
+        </div>
+        <div class="meter-body">
+          <div class="meter-channels">
+            <div class="meter-ch"><span class="meter-lbl">L</span><div class="meter-bar-track"><div class="meter-bar-fill" id="vu-l"></div></div><span class="meter-db" id="db-l">—</span></div>
+            <div class="meter-ch"><span class="meter-lbl">R</span><div class="meter-bar-track"><div class="meter-bar-fill" id="vu-r"></div></div><span class="meter-db" id="db-r">—</span></div>
+          </div>
+          <div class="out-gain-col">
+            <div class="knob out-knob" id="out-gain-knob" style="--mc:#ff8c00"><div class="knob-ind"></div><div class="knob-arc"></div></div>
+            <div class="knob-val" id="out-gain-val" style="--mc:#ff8c00; font-size:11px">0 dB</div>
+            <div class="knob-lbl" style="font-size:9px">GAIN</div>
+          </div>
+        </div>
+        <div class="meter-stats">
+          <div class="meter-stat"><span class="ms-lbl">LUFS</span><span class="ms-val" id="lufs-val">—</span></div>
+          <div class="meter-stat"><span class="ms-lbl">PEAK</span><span class="ms-val" id="peak-val">—</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="app-footer">
+    <span class="copyright-text" data-i18n="foot.copyright">© 2026 Master Rack. All rights reserved.</span>
+    <span class="foot-sep">·</span>
+    <span class="copyright-text" style="color: var(--tx2);" data-i18n="foot.runs_locally">Runs locally in your browser. No data stored or tracked.</span>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="privacy" data-i18n="foot.privacy">Privacy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="legal" data-i18n="foot.legal">Legal</a>
+    <span class="foot-sep">·</span>
+    <a href="#" class="foot-link" data-modal="terms" data-i18n="foot.terms">Terms</a>
+    <span class="foot-sep">·</span>
+
+    <form action="https://www.paypal.com/donate" method="post" target="_blank" style="display: inline-block; margin: 0; vertical-align: middle;">
+      <input type="hidden" name="business" value="73KKE6DVSJ8WY" />
+      <input type="hidden" name="no_recurring" value="1" />
+      <input type="hidden" name="currency_code" value="EUR" />
+      <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" style="display: inline-block; vertical-align: middle; height: auto; width: auto;" />
+      <img alt="" border="0" src="https://www.paypal.com/en_ES/i/scr/pixel.gif" width="1" height="1" />
+    </form>
+
+  </footer>
+
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">TITLE</h2>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="lang.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
