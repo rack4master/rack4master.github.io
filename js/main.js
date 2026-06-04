@@ -1,6 +1,6 @@
 // js/main.js
 import { clamp, dbToGain, fmtTime } from './utils.js';
-import { MODULE_DEFS } from './modules/defs.js';
+import { MODULE_DEFS, MODULE_MIGRATION } from './modules/defs.js';
 import { buildAudioNodes, ensureCtx, rewireChain, applyParam } from './core/audio.js';
 import { buildModuleThumb } from './ui/thumb.js';
 import { buildModuleCard } from './ui/card.js';
@@ -233,6 +233,7 @@ let soloedModuleId = null;
 let preSoloBypass = new Map();
 
 function toggleSolo(id) {
+  if (globalBypass) return;  // FIX: solo no tiene efecto con bypass global activo
   const mod = modules.find(m => m.id === id);
   if (!mod) return;
 
@@ -471,6 +472,20 @@ function refreshControlsState() {
   if (btnToggleWaveform) btnToggleWaveform.disabled = !hasAudio;
   if (btnToggleSidebar) btnToggleSidebar.disabled = !hasAudio;
   if (btnToggleChain) btnToggleChain.disabled = !hasAudio;
+
+  // FIX: sincronizar visual del botón global bypass con estado real
+  const gbBtn = document.getElementById('btn-global-bypass');
+  if (gbBtn) {
+    if (globalBypass) {
+      gbBtn.style.background = 'transparent';
+      gbBtn.style.borderColor = 'var(--brd2)';
+      gbBtn.style.color = 'var(--tx3)';
+    } else {
+      gbBtn.style.background = hasAudio ? 'var(--green)' : 'var(--surf2)';
+      gbBtn.style.borderColor = hasAudio ? 'var(--green)' : 'var(--brd2)';
+      gbBtn.style.color = hasAudio ? '#000' : 'var(--tx3)';
+    }
+  }
 }
 
 // --------------------------------------------------------------
@@ -517,6 +532,11 @@ async function loadAudioFile(file) {
   resetMeters();
   drawWaveformFull(wfCanvas, audioBuffer);
   wfEmpty.classList.add('hidden');
+  // Redibujar waveform si se redimensiona la ventana
+  if (!window._wfResizeListener) {
+    window._wfResizeListener = true;
+    window.addEventListener('resize', () => { if (audioBuffer) drawWaveformFull(wfCanvas, audioBuffer); });
+  }
 
   if (typeof spectrumVisible !== 'undefined' && spectrumVisible) {
     const specCanvas = document.getElementById('spectrum-canvas');
@@ -767,7 +787,7 @@ if (outKnob) {
 // --------------------------------------------------------------
 const globalBypassBtn = document.getElementById('btn-global-bypass');
 if (globalBypassBtn) {
-  globalBypassBtn.style.background = 'var(--green)';
+  // Estado visual inicial se aplica en refreshControlsState, no aquí
   globalBypassBtn.addEventListener('click', () => {
     if (!audioBuffer) return;
     const newState = !globalBypass;
@@ -977,7 +997,10 @@ function getCurrentSlotData() {
 
 function restoreSlotData(data) {
   [...modules].forEach(m => removeModule(m.id));
-  (data.modules || []).forEach(item => addModule(item.type, item.params || {}, item.bypassed));
+  (data.modules || []).forEach(item => {
+    const type = MODULE_MIGRATION[item.type] || item.type;
+    addModule(type, item.params || {}, item.bypassed);
+  });
   if (data.outputGainDb !== undefined) applyOutGain(data.outputGainDb);
   if (data.loop) {
     setLoopEnabled(!!data.loop.enabled);
@@ -1121,7 +1144,11 @@ function loadPresetFromFile(file) {
           if (btnLoop) btnLoop.classList.toggle('is-loop', loopEnabled);
         }
         if (data.outputGainDb !== undefined) applyOutGain(data.outputGainDb);
-        (data.modules || []).forEach(item => addModule(item.type, item.params || {}, item.bypassed));
+        (data.modules || []).forEach(item => {
+          // Migración: nombres de módulos antiguos → nuevos
+          const type = MODULE_MIGRATION[item.type] || item.type;
+          addModule(type, item.params || {}, item.bypassed);
+        });
         if (modules.length > 0) setActiveModule(modules[0].id);
         setSlotA(getCurrentSlotData());
         setSlotB(null);

@@ -304,7 +304,7 @@ export async function analyzeAndRecommend(audioBuffer) {
   if (dPres > 5) {
     add(
       'Sibilancia/exceso de presencia (5-10 kHz, +' + dPres.toFixed(1) + ' dB, pico ~' + sibFreqRound + ' Hz). De-esser Pro recomendado.',
-      'deesserpro',
+      'deesser',
       { frequency: sibFreqRound, threshold: -16, ratio: 3, attack: 5, release: 150, mix: 100, output: 0 }
     );
   }
@@ -367,7 +367,7 @@ export async function analyzeAndRecommend(audioBuffer) {
   if (crest < 8 && rmsDb > -8) {
     add(
       'Señal excesivamente comprimida o limitada (crest factor: ' + crest.toFixed(1) + ' dB). Soft Clipper recomendado.',
-      'softclipper',
+      'harmonicdrive',
       { threshold: -2, mix: 60, output: 0 }
     );
   }
