@@ -26,7 +26,7 @@ You can also [donate via PayPal](https://www.paypal.com/donate?business=73KKE6DV
 
 - **Load any audio** (WAV, MP3, etc.) via drag & drop or file picker.
 - **Interactive waveform** with click-to-seek, loop handles, and real-time playback position.
-- **15 professional audio modules** (consolidated from 19, higher DSP quality):
+- **15 professional audio modules** (higher DSP quality):
 
 ### 🎛 Dynamics
 | Module | Description |
