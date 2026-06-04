@@ -243,6 +243,7 @@
             <div class="spectrum-results-empty">Run analysis to see recommendations</div>
           </div>
           <button id="btn-apply-recommendations" class="btn-apply-recommendations hidden">APPLY SUGGESTED CHAIN</button>
+          <button id="btn-copy-results" class="btn-apply-recommendations hidden" style="background:var(--surf2);border:1px solid var(--brd2);color:var(--tx2);margin-top:4px;">⎘ COPY RESULTS</button>
         </div>
       </div>
 
@@ -350,10 +351,10 @@
         <button class="slot-info-btn" data-module="filter" title="Información">ⓘ</button>
       </div>
       <div class="slot" data-type="deesser" data-cat="filters">
-        <div class="slot-led" style="--lc:#cc44ff"></div>
+        <div class="slot-led" style="--lc:#cc55ff"></div>
         <div class="slot-info">
           <div class="slot-name">DE-ESSER</div>
-          <div class="slot-params">Freq · Bandwidth · Depth</div>
+          <div class="slot-params">Freq · Thresh · Ratio · Mix</div>
         </div>
         <button class="slot-btn">⊕</button>
         <button class="slot-info-btn" data-module="deesser" title="Información">ⓘ</button>
@@ -367,23 +368,14 @@
         <button class="slot-btn">⊕</button>
         <button class="slot-info-btn" data-module="eq" title="Información">ⓘ</button>
       </div>
-      <div class="slot" data-type="chorus" data-cat="spatial">
-        <div class="slot-led" style="--lc:#3388ff"></div>
+      <div class="slot" data-type="modulation" data-cat="spatial">
+        <div class="slot-led" style="--lc:#55aaff"></div>
         <div class="slot-info">
-          <div class="slot-name">CHORUS</div>
-          <div class="slot-params">Rate · Depth · Mix</div>
+          <div class="slot-name">MODULATION</div>
+          <div class="slot-params">Chorus · Flanger · Vibrato</div>
         </div>
         <button class="slot-btn">⊕</button>
-        <button class="slot-info-btn" data-module="chorus" title="Información">ⓘ</button>
-      </div>
-      <div class="slot" data-type="flanger" data-cat="spatial">
-        <div class="slot-led" style="--lc:#aa33ff"></div>
-        <div class="slot-info">
-          <div class="slot-name">FLANGER</div>
-          <div class="slot-params">Rate · Depth · Feedback</div>
-        </div>
-        <button class="slot-btn">⊕</button>
-        <button class="slot-info-btn" data-module="flanger" title="Información">ⓘ</button>
+        <button class="slot-info-btn" data-module="modulation" title="Información">ⓘ</button>
       </div>
       <div class="slot" data-type="reverb" data-cat="spatial">
         <div class="slot-led" style="--lc:#aa66ff"></div>
@@ -412,14 +404,14 @@
         <button class="slot-btn">⊕</button>
         <button class="slot-info-btn" data-module="widener" title="Información">ⓘ</button>
       </div>
-      <div class="slot" data-type="saturator" data-cat="saturation">
+      <div class="slot" data-type="harmonicdrive" data-cat="saturation">
         <div class="slot-led" style="--lc:#ff6633"></div>
         <div class="slot-info">
-          <div class="slot-name">SATURADOR</div>
-          <div class="slot-params">Drive · Tone · Output</div>
+          <div class="slot-name">HARMONIC DRIVE</div>
+          <div class="slot-params">Soft · Tape · Hard</div>
         </div>
         <button class="slot-btn">⊕</button>
-        <button class="slot-info-btn" data-module="saturator" title="Información">ⓘ</button>
+        <button class="slot-info-btn" data-module="harmonicdrive" title="Información">ⓘ</button>
       </div>
       <div class="slot" data-type="midside" data-cat="spatial">
         <div class="slot-led" style="--lc:#ffaa44"></div>
@@ -430,15 +422,7 @@
         <button class="slot-btn">⊕</button>
         <button class="slot-info-btn" data-module="midside" title="Información">ⓘ</button>
       </div>
-      <div class="slot" data-type="softclipper" data-cat="saturation">
-        <div class="slot-led" style="--lc:#ff8844"></div>
-        <div class="slot-info">
-          <div class="slot-name">SOFT CLIPPER</div>
-          <div class="slot-params">Drive · Mix · Output</div>
-        </div>
-        <button class="slot-btn">⊕</button>
-        <button class="slot-info-btn" data-module="softclipper" title="Información">ⓘ</button>
-      </div>
+
       <div class="slot" data-type="exciter" data-cat="spatial">
         <div class="slot-led" style="--lc:#33dd99"></div>
         <div class="slot-info">
@@ -448,15 +432,7 @@
         <button class="slot-btn">⊕</button>
         <button class="slot-info-btn" data-module="exciter" title="Información">ⓘ</button>
       </div>
-      <div class="slot" data-type="deesserpro" data-cat="dynamics">
-        <div class="slot-led" style="--lc:#dd66ff"></div>
-        <div class="slot-info">
-          <div class="slot-name">DE-ESSER PRO</div>
-          <div class="slot-params">Freq · Thresh · Ratio · Mix</div>
-        </div>
-        <button class="slot-btn">⊕</button>
-        <button class="slot-info-btn" data-module="deesserpro" title="Información">ⓘ</button>
-      </div>
+
       <div class="slot" data-type="multiband" data-cat="dynamics">
         <div class="slot-led" style="--lc:#aa88ff"></div>
         <div class="slot-info">
