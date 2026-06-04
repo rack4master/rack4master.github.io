@@ -411,26 +411,24 @@
         <!-- MÓDULOS COMPLETOS -->
         <section id="modules" class="section">
             <h2>Todos los Módulos del Rack</h2>
-            <p>Cada módulo está optimizado para una función específica en la cadena de masterización:</p>
+            <p>Cada módulo está optimizado para una función específica en la cadena de masterización. En esta versión, 19 módulos originales se han consolidado en <strong>15 módulos</strong> de mayor calidad DSP.</p>
+            <p style="font-size:0.85rem; color:var(--tx3); margin-bottom:16px;">15 módulos · Dinámica · Filtros · Espacial · Saturación</p>
             <div class="grid">
-                <div class="card"><div class="card-title"><div class="led" style="background: #4488ff;"></div> Puerta de Ruido</div><p>Elimina ruido de fondo en pasajes silenciosos.</p><div class="card-desc">Thresh · Attack · Release</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ffaa00;"></div> Compresor</div><p>Controla el rango dinámico y aporta pegada.</p><div class="card-desc">Thresh · Ratio · Makeup</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ff3366;"></div> Limitador</div><p>Evita saturación y maximiza el volumen.</p><div class="card-desc">Thresh · Release · Makeup</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ff33aa;"></div> Tremolo</div><p>Modulación de amplitud para efectos rítmicos.</p><div class="card-desc">Rate · Depth</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #00d4b0;"></div> Filtro HP/LP</div><p>Limpia frecuencias no deseadas en graves y agudos.</p><div class="card-desc">High-Pass · Low-Pass</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #cc44ff;"></div> De‑esser (clásico)</div><p>Reduce sibilancias mediante filtro notch.</p><div class="card-desc">Freq · BW · Depth</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #33dd77;"></div> Ecualizador 4-B</div><p>Balance tonal preciso con 4 bandas paramétricas.</p><div class="card-desc">Freq · Gain · Q x4</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #3388ff;"></div> Chorus</div><p>Anchura y movimiento tipo coro.</p><div class="card-desc">Rate · Depth · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #aa33ff;"></div> Flanger</div><p>Barrido tipo jet.</p><div class="card-desc">Rate · Depth · Feedback</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #aa66ff;"></div> Reverb</div><p>Profundidad y espacio.</p><div class="card-desc">Size · Decay · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ffcc33;"></div> Delay</div><p>Eco y repeticiones.</p><div class="card-desc">Time · Feedback · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #44ccff;"></div> Widener</div><p>Ensancha la imagen estéreo.</p><div class="card-desc">Width · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ffaa44;"></div> Mid/Side</div><p>Procesa centro y laterales por separado.</p><div class="card-desc">Mid · Side · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ff6633;"></div> Saturador</div><p>Calidez analógica y armónicos.</p><div class="card-desc">Drive · Tone · Output</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #ff8844;"></div> Soft Clipper</div><p>Recorte suave de picos, aumento de volumen.</p><div class="card-desc">Drive · Mix · Output</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #33dd99;"></div> Exciter Armónico</div><p>Añade brillo y aire mediante armónicos pares.</p><div class="card-desc">Cutoff · Drive · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #dd66ff;"></div> De‑esser Pro</div><p>Reducción dinámica de sibilancias.</p><div class="card-desc">Freq · Thresh · Ratio · Mix</div></div>
-                <div class="card"><div class="card-title"><div class="led" style="background: #aa88ff;"></div> Compresor Multibanda</div><p>Compresión por bandas (bajos, medios, agudos).</p><div class="card-desc">3x Threshold · Ratio · Gain</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#4488ff;"></div> Puerta de Ruido</div><p>Expander descendente real con envelope follower. Elimina ruido en silencios.</p><div class="card-desc">Thresh · Ratio · Attack · Release · <strong>Hold</strong></div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ffaa00;"></div> Compresor</div><p>Controla el rango dinámico con curva de knee y makeup ajustable.</p><div class="card-desc">Thresh · Ratio · Knee · Attack · Release · Makeup</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ff3366;"></div> Limitador</div><p>Brickwall con attack de 1 ms. Alineado con targets de streaming (−1 dBTP).</p><div class="card-desc">Thresh · Release · Makeup</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ff33aa;"></div> Tremolo</div><p>Modulación de amplitud para efectos rítmicos.</p><div class="card-desc">Rate · Depth</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#00d4b0;"></div> Filtro HP/LP</div><p>Filtros High-Pass y Low-Pass independientes con toggle ON/OFF.</p><div class="card-desc">HP Freq · HP Q · HP On · LP Freq · LP Q · LP On</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#cc55ff;"></div> De‑esser</div><p>Compresor dinámico de banda: solo corta cuando la sibilancia supera el umbral.</p><div class="card-desc">Freq · Thresh · Ratio · Attack · Release · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#33dd77;"></div> Ecualizador 4-B</div><p>Low shelf · 2× Peaking · High shelf. Curva interactiva con nodos arrastrables.</p><div class="card-desc">Freq · Gain · Q × 4</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#aa88ff;"></div> Multibanda</div><p>Crossover LR4 (Linkwitz-Riley 4°) — suma perfectamente plana entre bandas.</p><div class="card-desc">3× Thresh · Ratio · Attack · Release · Crossover</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#aa66ff;"></div> Reverb</div><p>IR mejorado: HF decae más rápido que LF (absorción aérea real).</p><div class="card-desc">Size · Decay · <strong>Damp</strong> · Predelay · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ffcc33;"></div> Delay</div><p>Eco con filtro LP en la cadena de realimentación para degradación tipo cinta.</p><div class="card-desc">Time · Feedback · Tone · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#55aaff;"></div> Modulation</div><p>Chorus + Flanger + Vibrato en un único módulo con selector de modo.</p><div class="card-desc">Mode · Rate · Depth · Feedback · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#33dd99;"></div> Exciter</div><p>Añade brillo y aire mediante armónicos pares de alta frecuencia.</p><div class="card-desc">Cutoff · Drive · Mix · Output</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#44ccff;"></div> Widener</div><p>Haas stereo widening. Canal R corregido + Mono Bass para compatibilidad mono.</p><div class="card-desc">Width · <strong>Mono Bass</strong> · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ffaa44;"></div> Mid/Side</div><p>Procesa centro y laterales por separado. Matriz M/S normalizada (unidad = 0 dB).</p><div class="card-desc">Mid Gain · Side Gain · Mix</div></div>
+                <div class="card"><div class="card-title"><div class="led" style="background:#ff6633;"></div> Harmonic Drive</div><p>Saturador con 3 modos: Soft (tanh suave) · Tape (asimétrico) · Hard (recorte duro). Oversample 4×.</p><div class="card-desc">Mode · Drive · Tone · Mix · Output</div></div>
             </div>
         </section>
 
@@ -440,7 +438,7 @@
             <div class="grid">
                 <div class="card">
                     <div class="card-title">Presets de Instrumentos</div>
-                    <p>Usa el selector superior para cargar configuraciones optimizadas para 25 fuentes distintas: guitarras, pianos, voces, baterías, orquesta y mezclas completas.</p>
+                    <p>Usa el selector superior para cargar configuraciones optimizadas para <strong>35+ fuentes</strong>: guitarras (6), pianos/teclas (4), voces (5), baterías y percusión (6), orquesta (3) y mezclas por género (Rock, Blues, Country, Folk, Jazz, Urban, Latino, Pop, Balada, Mastering). Todos los presets incluyen parámetros explícitos, no solo el tipo de módulo.</p>
                 </div>
                 <div class="card">
                     <div class="card-title">Guardar / Cargar</div>
@@ -448,7 +446,7 @@
                 </div>
                 <div class="card">
                     <div class="card-title">Exportación WAV</div>
-                    <p>El botón <kbd>WAV</kbd> renderiza tu audio procesado usando un contexto offline, con la máxima calidad.</p>
+                    <p>El botón <kbd>WAV</kbd> abre un diálogo para seleccionar <strong>16 bits</strong> (con dithering TPDF) o <strong>24 bits</strong>, y frecuencia de muestreo original o 48 kHz. El audio se renderiza offline respetando toda la cadena.</p>
                 </div>
             </div>
         </section>
